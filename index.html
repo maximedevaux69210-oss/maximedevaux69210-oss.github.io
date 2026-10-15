@@ -5185,7 +5185,7 @@ function play(F,isReplay,opts){
     if(u.flash>0||u.stun>0)return RIG.anim(cls,"hurt",0,{flash:u.flash>.08});
     if(u.moving)return RIG.anim(cls,u.cls==="assassin"?"run":"walk",clock+u.id*.37);
     return RIG.anim(cls,"idle",clock+u.id*.7)}
-  function drawRig(u,x,y,face,H,al){RIG.setLow(!HQ());const P=rigPose(u);if(u.big>W.t)P.scale=(P.scale||1)*1.15;ctx.save();if(al!=null)ctx.globalAlpha*=al;
+  function drawRig(u,x,y,face,H,al){RIG.setLow(!HQ());const P=rigPose(u);if(u.big>W.t)P.scale=(P.scale||1)*1.15;ctx.save();if(al!=null)ctx.globalAlpha*=al;if(P.flash){P.flash=0;if("filter" in ctx)ctx.filter="brightness(1.9) saturate(.6)"}
     RIG.draw(ctx,u,P,x,y,H/58,face,clock+u.id,{ring:u.s===0?"rgba(240,180,58,.9)":u.s===2?"rgba(176,128,255,.9)":"rgba(224,69,47,.9)"});ctx.restore()}
   let ultFlash=0;
   function statusFx(u,x,y,H,S){const has=k=>u.st[k]&&u.st[k].t>0,dk=k=>u.dots.some(d=>d.k===k&&d.t>0),top=y+.3-H;
