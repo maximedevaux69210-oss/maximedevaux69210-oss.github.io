@@ -776,6 +776,7 @@ body.lowfx *,body.lowfx *::before,body.lowfx *::after{animation-duration:.01ms!i
 .skpts b{font-family:var(--display);font-size:22px;color:var(--gild-hi);line-height:1}.skpts span{font-size:11px;color:var(--muted)}
 .slv{font-size:10px;font-weight:700;color:var(--gild-hi);background:rgba(0,0,0,.35);border-radius:999px;padding:0 6px}
 .chipsrow{display:flex;gap:6px;overflow-x:auto;margin:12px -18px 8px;padding:0 18px;scrollbar-width:none}.chipsrow::-webkit-scrollbar{display:none}
+.dgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}.dcard{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;border-radius:10px;background:#120e0b;border:1px solid var(--line);border-top:3px solid var(--rc);text-align:center;min-width:0}.dcard.taken{opacity:.38}.dcard b{font-size:12.5px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dcard em{font-style:normal;font-size:10.5px;color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dpw{font-size:10.5px;color:var(--gild-hi)}.dtk{font-size:10.5px;font-weight:700;color:var(--muted)}.dpor{background:none;border:0;padding:0}.dpor img{width:52px;height:52px;border-radius:10px;border:2px solid var(--rc)}.dcard .btn{margin-top:3px;width:100%}.dmine{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:6px 0}.dmine b{font-size:13px;margin-right:4px}.dlog{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0;opacity:.85}
 .fchip{flex:none;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:700;color:var(--muted);background:#120e0b;border:1px solid var(--line)}
 .fchip.on{color:#14100d;background:linear-gradient(180deg,#efd796,#b8913f);border-color:#f4e2ab}
 .skgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
@@ -995,7 +996,7 @@ body:has(#arena:not([hidden])) .app,body:has(#arena:not([hidden])) .fab,body:has
 </head><body>
 <div class="app">
   <header><div class="hd"><span id="crest"></span><div class="hd-t"><div class="brand" id="brand">Les Crocs de Bronze</div>
-    <div class="stats"><span>Saison <b id="season">1</b></span><span>Journée <b id="day">1</b>/5</span><span><b id="record">0V 0D</b></span></div></div>
+    <div class="stats"><span>Saison <b id="season">1</b></span><span>J. <b id="day">1</b>/18</span><span><b id="record">0V 0D</b></span></div></div>
     <div class="coin" aria-label="Monnaies" data-a="curinfo"><span id="coinic"></span><span class="cvals"><b id="gold">0</b><small id="cur2"></small></span></div><button class="mnb" data-a="menu" aria-label="Menu"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg></button></div></header>
   <main id="view"></main>
   <nav role="tablist">
@@ -1042,7 +1043,7 @@ const CLASSES={
   barde:{label:"Barde",hp:74,atk:11,spd:11,role:"Soutien",
     basic:"Corps à corps : frappe l'ennemi le plus proche.",
     sk:"Chant de guerre",skd:k=>`Toute l'équipe gagne +${p(20*k)} % d'attaque (cumulable 2 fois).`},
-  moine:{label:"Moine",hp:74,atk:9.6,spd:11,role:"Duelliste",
+  moine:{label:"Moine",hp:78,atk:10.1,spd:11,role:"Duelliste",
     basic:"Corps à corps. Esquive naturelle de 10 %.",
     sk:"Paume foudroyante",skd:k=>`Frappe à ${p(150*k)} % et étourdit la cible 1,2 s.`}
 };
@@ -1081,7 +1082,7 @@ const LEG_NAMES=["Valdrak le Fléau","Isolde Aube-Ardente","Korgan Mille-Lames",
 const CLUBS=["Les Loups de Fer","La Garde Cendrée","Les Sangliers","Compagnie du Corbeau","Les Lames Pourpres"];
 const MAX_TEAM0=7;
 /* Économie */
-const ECO={start:150,win:60,loss:30,reroll:5,sell:.6,season:[200,140,90,60,40,40]};
+const ECO={start:150,win:50,loss:20,reroll:20,sell:.6,season:[600,450,350,280,220,170,130,100,70,50]};
 const rnd=(a,b)=>a+Math.random()*(b-a),ri=(a,b)=>Math.floor(rnd(a,b+1)),pick=a=>a[ri(0,a.length-1)];
 let uid=Date.now();
 
@@ -1104,6 +1105,12 @@ function pepite(m){const g=gOf(m),n=["hp","atk","spd"].filter(k=>g[k]>=1.085).le
 function gradeHtml(v){const G=GRD(v);return `<i class="grd" style="--gc:${GRC[G]}">${G}</i>`}
 function rollChips(m){const g=gOf(m),p=pepite(m);return `<span class="rolls">${gradeHtml(g.hp)}${gradeHtml(g.atk)}${gradeHtml(g.spd)}<em class="pot">${"★".repeat(potOf(m))}<b>${"★".repeat(5-potOf(m))}</b></em>${p===2?'<span class="pep perle">Perle rare</span>':p===1?'<span class="pep">Pépite</span>':""}</span>`}
 function rollCard(m){const g=gOf(m),p=pepite(m);return `<div class="card flat rollc"><div class="kicker">Tirage du héros${tip("grade")}</div><div class="rl"><span>PV ${gradeHtml(g.hp)}</span><span>Attaque ${gradeHtml(g.atk)}</span><span>Vitesse ${gradeHtml(g.spd)}</span><span>Potentiel${tip("pot")} <em class="pot">${"★".repeat(potOf(m))}<b>${"★".repeat(5-potOf(m))}</b></em></span></div><p class="hint rollh" style="margin:6px 0 0">Notes C à S : tirage de la stat à la recrue. Potentiel : vitesse de progression.${p===2?" <b style=\"color:#7fe0ff\">Perle rare : les trois stats en S !</b>":p===1?" <b style=\"color:var(--gild-hi)\">Pépite : un tirage exceptionnel.</b>":""}</p></div>`}
+/* ===== V26 · Raretés : recrutement plus dur, dépend de la division, du Bureau de recrutement et de la difficulté ===== */
+function stage(){const d=typeof S!=="undefined"&&S&&S.div!=null?S.div:5;return [9,8,6,4,2,1][d]}
+function recruitRarity(){const k=5-((S&&S.div!=null)?S.div:5),L=bl("recru"),mul=(1+.3*L)*diffRar();
+  const w=[Math.max(30,62-4*k),27,9+2*k,(1.8+.8*k)*mul,(.2+.25*k)*mul,L>=3?(.05+.05*k)*mul:0,L>=5?(.01+.02*k)*mul:0];
+  let x=Math.random()*w.reduce((a,c)=>a+c);for(let i=0;i<w.length;i++){if((x-=w[i])<0)return RKEYS[i]}return "commun"}
+function namedMax(){const d=(S&&S.div!=null)?S.div:5,L=bl("recru");return d<=1&&L>=3?5:(d<=2||L>=4)?4:(d<=4||L>=2)?3:-1}
 function rollRarity(season){
   const b=Math.min(season-1,8),w=[RAR.commun.w-b*4,RAR.peucommun.w+b,RAR.rare.w+b*1.5,RAR.epique.w+b,RAR.legendaire.w+b*.5,RAR.mythique.w+b*.12,RAR.divin.w+b*.03];
   let x=Math.random()*w.reduce((a,c)=>a+c);for(let i=0;i<w.length;i++){if((x-=w[i])<0)return RKEYS[i]}return "commun";
@@ -1121,7 +1128,7 @@ function makeMerc(lvl,cls,rar,season){
   cls=cls||pick(Object.keys(CLASSES));rar=rar||rollRarity(season||1);
   const name=LEGR(rar)&&Math.random()<.6?pick(LEG_NAMES):pick(FIRST)+(Math.random()<.4?" "+pick(NICK):"");
   const m={id:uid++,seed:Math.floor(Math.random()*2**31),name,cls,rar,lvl,q:1,traits:rollTraits(rar),var:ri(0,2),pers:pick(PKEYS),gs:pick(["equilibre","equilibre","robuste","puissant"])};giveRolls(m);
-  return rollSkills(m,{commun:0,peucommun:0,rare:1,epique:1,legendaire:2,mythique:2,divin:3}[rar],Math.max(1,RANKMAX[rar]-1));
+  return rollSkills(m,{commun:1,peucommun:1,rare:1,epique:1,legendaire:2,mythique:2,divin:3}[rar],Math.max(1,RANKMAX[rar]-1));
 }
 /* ================= ÉQUIPEMENT (V4.2) =================
    3 emplacements : arme (+ATQ), armure (+PV), relique (recharges −). Dès Rare, un effet bonus ; Mythique et Divin en ont deux. */
@@ -1180,10 +1187,11 @@ function openGear(i,slot){const m=S.team[i];m.gear=m.gear||{};S.items=S.items||[
 /* 3.5 : personnalités et styles de croissance */
 const PERS={gardien:{l:"Gardien",d:"+10 % PV, −4 % attaque"},impulsif:{l:"Impulsif",d:"+8 % attaque, −6 % PV, frappe plus tôt"},calme:{l:"Calme",d:"Recharges des compétences −8 %"},tenace:{l:"Tenace",d:"Étourdissements subis −30 %"},opportuniste:{l:"Opportuniste",d:"+15 % de dégâts contre les ennemis sous 40 % de PV"},meneur:{l:"Meneur",d:"Capitaine : bonus d'équipe +10 % au lieu de +6 %"}};
 const PKEYS=Object.keys(PERS),GSL_={equilibre:["Équilibré","Progression régulière"],robuste:["Robuste","PV +15 % par niveau, attaque −10 %"],puissant:["Puissant","Attaque +15 % par niveau, PV −10 %"]};
+const GROWK=.5;/* V28 : un niveau compte moins (≈ +11 % PV, +9 % ATQ) pour laisser place à la tactique */
 const CGROW={chevalier:[.26,.15,.02],berserker:[.20,.21,.02],archer:[.19,.20,.02],assassin:[.19,.22,.03],pyromancien:[.19,.21,.02],clerc:[.23,.16,.02],necromancien:[.20,.18,.02],druide:[.23,.17,.02],barde:[.23,.17,.02],moine:[.22,.18,.03]};
 function stats(m){
   const c=CLASSES[m.cls],l=m.lvl-1,r=RAR[m.rar].st,T=m.traits;
-  const gr=CGROW[m.cls]||[.22,.18,.02],gs=m.gs==="robuste"?[1.15,.9]:m.gs==="puissant"?[.9,1.15]:[1,1];
+  const gr=(CGROW[m.cls]||[.22,.18,.02]).map((v,j)=>j<2?v*GROWK:v),gs=m.gs==="robuste"?[1.15,.9]:m.gs==="puissant"?[.9,1.15]:[1,1];
   const G_=gOf(m),pm=[.85,.93,1,1.08,1.16][potOf(m)-1];let hp=c.hp*G_.hp*r*(1+gr[0]*gs[0]*l*pm),atk=c.atk*G_.atk*r*(1+gr[1]*gs[1]*l*pm),spd=c.spd*(1+(G_.spd-1)*.5)*(1+gr[2]*l*pm);
   if(m.pers==="gardien"){hp*=1.1;atk*=.96}else if(m.pers==="impulsif"){atk*=1.08;hp*=.94}
   if(T.includes("colosse"))hp*=1.15;if(T.includes("fragile"))hp*=.9;
@@ -1194,7 +1202,7 @@ function stats(m){
 }
 const price=m=>{const pos=m.traits.filter(t=>!TRAITS[t].neg).length,neg=m.traits.length-pos;
   return Math.round((12+10*m.lvl)*((gOf(m).hp+gOf(m).atk+gOf(m).spd)/3)*(.85+.05*potOf(m))*(m.perle?1.5:1)*RAR[m.rar].pr*(1+.1*pos-.15*neg)+((m.skills&&m.skills.known)||[]).reduce((a,id)=>a+RPRICE[SKILLS[id].r]*.5,0))};
-const trainCost=m=>Math.round(15*m.lvl*(1+RKEYS.indexOf(m.rar)*.2));
+const trainCost=m=>Math.round(12*m.lvl*m.lvl*(1+RKEYS.indexOf(m.rar)*.15));const trainKey=()=>S.season*100+S.day;const trainedNow=m=>m.trD===trainKey();
 const power=team=>team.reduce((s,m)=>{const t=stats(m);return s+t.hp*t.atk*t.spd/10*RAR[m.rar].sk},0);
 
 /* ================= PORTRAITS PIXEL ================= */
@@ -1984,9 +1992,10 @@ let S=null,tab="home";
 function makeOpp(L,season){
   const st=STYLES[L.style],base=season,team=[];
   st.cls.forEach((c,i)=>team.push(makeMerc(Math.max(1,base-1+ri(0,1)-(season===1&&i>3?1:0)),c,null,season)));
-  const lead=team[0];lead.name=L.leader;lead.rar=season<3?"epique":"legendaire";lead.traits=rollTraits(lead.rar);lead.lvl=Math.max(lead.lvl,season);lead.skills=null;
-  team.forEach(m=>{ensureSkills(m);rollSkills(m,slotsOf(m),Math.min(RANKMAX[m.rar],season+1))});
-  team.forEach(m=>{m.gear={};GSLOTS.forEach(sl=>{if(Math.random()<Math.min(.85,.2+season*.13))m.gear[sl]=makeItem(sl,rollRarity(season))})});
+  const lead=team[0];lead.name=L.leader;{const k=5-divOf(),base=[1,2,2,3,3,4][k],t=L.tier==null?1:L.tier;lead.rar=RKEYS[Math.min(5,base+t)];if(t===2&&team[1]){team[1].rar=RKEYS[Math.min(5,base+1)];team[1].traits=rollTraits(team[1].rar)}}lead.traits=rollTraits(lead.rar);lead.lvl=Math.max(lead.lvl,season);lead.skills=null;
+  {const t=L.tier==null?1:L.tier,cap=t===0?1:t===1&&divOf()>=4?2:9;team.slice(1).forEach(m=>{if(m===team[1]&&t===2)return;if(RKEYS.indexOf(m.rar)>cap){m.rar=RKEYS[cap];m.traits=rollTraits(m.rar)}})}
+  team.forEach(m=>{ensureSkills(m);rollSkills(m,slotsOf(m),Math.min(RANKMAX[m.rar],L.tier===0?1:season+1))});
+  team.forEach(m=>{m.gear={};GSLOTS.forEach(sl=>{if(Math.random()<(L.tier===2?.9:L.tier===0?.12:Math.min(.85,.15+season*.1)))m.gear[sl]=makeItem(sl,rollRarity(L.tier===0?1:season))})});
   team.forEach(m=>{const ri_=RKEYS.indexOf(m.rar);m.evo=m.lvl>=15&&Math.random()<.6?3:m.lvl>=10&&Math.random()<.7?2:m.lvl>=5&&Math.random()<.7?1:0});
   team.forEach(m=>{if((m.evo||0)>=2&&Math.random()<.7){const u="k"+m.cls.slice(0,3)+"9";if(SKILLS[u]){m.skills.known.push(u);if(m.skills.eq.length<slotsOf(m))m.skills.eq.push(u);else m.skills.eq[m.skills.eq.length-1]=u}}});
   team.forEach(m=>{if(1)return;const c=Object.keys(SKILLS).filter(k=>SKILLS[k].evo&&SKILLS[k].evo<=m.evo&&SKILLS[k].b.indexOf("e_"+m.cls)===0&&SKILLS[k].r<=RANKMAX[m.rar]);if(!c.length)return;const id=pick(c);m.skills.known.push(id);if(m.skills.eq.length<slotsOf(m))m.skills.eq.push(id);else m.skills.eq[m.skills.eq.length-1]=id});
@@ -2001,14 +2010,33 @@ function divOf(){return S&&S.div!=null?S.div:5}
 function divAdj(d){return [3,2,1,1,0,0][d==null?5:d]}
 function divPrize(d){return 1+.25*(5-(d==null?5:d))}
 function divBadge(d){const D_=LDIV[d==null?5:d];return `<span class="dvb" style="--dc:${D_.c}">Division ${D_.l}</span>`}
-const SRULES={or:{l:"Saison de l'or",d:"+20 % d'or à chaque match",g:.2},sang:{l:"Saison sanglante",d:"+20 % d'XP à chaque combat",x:.2},cles:{l:"Saison des gemmes",d:"+1 gemme de plus par victoire",k:1},butin:{l:"Saison du butin",d:"Objets plus fréquents après une victoire",it:.2}};
-const CUPR=["Quart de finale","Demi-finale","Finale"],CUPDAY=[1,3,5];
+const SRULES={or:{l:"Saison de l'or",d:"+20 % d'or à chaque match",g:.2},sang:{l:"Saison sanglante",d:"+20 % d'XP à chaque combat",x:.2},cles:{l:"Saison des gemmes",d:"+1 gemme à chaque victoire",k:1},butin:{l:"Saison du butin",d:"Objets plus fréquents après une victoire",it:.2}};
+const CUPR=["Huitième de finale","Quart de finale","Demi-finale","Finale"],CUPDAY=[4,8,12,16];
 const CUPCLUBS=["Les Faucons d'Argent","L'Ordre du Chêne","La Rose Noire","Les Marteaux","Les Vipères","Le Cercle d'Ambre","Les Ours Gris","La Meute Blanche","Les Rôdeurs","La Main d'Ivoire","Les Tisseurs d'Orage","Les Cornes de Bronze"];
 function newCup(){return {r:0,out:0,won:false,opp:null}}
-function cupAvail(){const c=S.cup;return !!(c&&!c.out&&!c.won&&c.r<3&&S.day>=CUPDAY[c.r])}
-function cupOpp(){const c=S.cup;if(!c.opp){const L={club:pick(CUPCLUBS),leader:pick(["Maître Oren","La Veuve Grise","Baron Kessel","Sire Aldric","Mère Ronce","Le Borgne"]),style:pick(LEADERS).style};c.opp=makeOpp(L,S.season+divAdj(divOf())+(c.r===2?1:0))}return c.opp}
-function cupGold(){return Math.round((40+30*((S.cup||{}).r||0))*divPrize(divOf()))}
-const newSeasonOpps=(season,d)=>LEADERS.map((L,i)=>{d=d==null?5:d;const o=makeOpp(L,season+divAdj(d)+(typeof diffAdj==="function"?diffAdj():0));if(d<5&&DCLUBS[d])o.name=DCLUBS[d][i];return o});
+function cupAvail(){const c=S.cup;return !!(c&&!c.out&&!c.won&&c.r<4&&S.day>=CUPDAY[c.r])}
+function cupOpp(){const c=S.cup;if(!c.opp){const L={club:pick(CUPCLUBS),leader:pick(["Maître Oren","La Veuve Grise","Baron Kessel","Sire Aldric","Mère Ronce","Le Borgne"]),style:pick(LEADERS).style};L.tier=c.r>=2?2:1;c.opp=makeOpp(L,Math.max(1,divLv()+[0,1,2,3][c.r]))}return c.opp}
+function cupGold(){return Math.round([40,80,150,300][Math.min(3,(S.cup||{}).r||0)]*divPrize(divOf()))}
+/* ===== V25 · Difficulté choisie à la fondation ===== */
+const DIFFS=[["facile","Facile","+25 % d'or","Adversaires 1 niveau plus bas, 25 % d'or en plus, héros épiques et mieux 30 % plus fréquents."],["normal","Moyen","équilibré","L'expérience prévue : on progresse à chaque saison, mais il faut faire des choix."],["difficile","Difficile","−15 % d'or","Adversaires 1 niveau plus haut, 15 % d'or en moins, héros épiques et mieux 20 % plus rares. Pour les vrais gestionnaires."]];
+function diffRar(){return S&&S.diff==="facile"?1.3:S&&S.diff==="difficile"?.8:1}
+/* ===== V24 · Championnat : 10 clubs par division, 18 journées aller-retour, clubs persistants ===== */
+const NDAYS=18,NCLUBS=10,DIVLV=[17,14,11,8,5,2];
+const CLUBX=["Les Hiboux de Cendre","La Confrérie du Gué","Les Brise-Lances","Les Fils du Tonnerre","La Garde du Phare","Les Chiens de Guerre","Le Clan des Ronces","Les Écus Noirs","Les Sentinelles","La Compagnie Grise","Les Faux d'Argent","Les Loups Blancs","Les Cornes Rouges","La Rose des Vents","Les Fers Croisés","Les Enfants du Roc","La Bannière Sanglante","Les Veilleurs","Les Marteaux de Guerre","La Lune Rousse","Les Crocs d'Ébène","Le Serment d'Acier","Les Ombres du Val","La Légion Dorée"];
+const LEADX=["Maître Holt","Dame Ysolde","Ragnar le Rouge","La Veuve Noire","Sire Bertrand","Kael l'Ancien","Morwen la Sage","Brak Poing-de-Fer","Ondine des Marais","Le Grand Héraut","Thessa la Lame","Ulric le Juste","Gorm le Massif","Lyra Chante-Lune","Baron Vasch","Edda la Rousse","Fendrel le Gris","Mère Ronce","Sigurd Tête-d'Ours","Dame Corail","Torin Cœur-Noir","Zara l'Exilée","Le Chancelier","Hrolf le Vieux"];
+const TIERL=["Outsider","Prétendant","Favori"];
+function divLv(d){return DIVLV[d==null?divOf():d]+(typeof diffAdj==="function"?diffAdj():0)}
+function genDivClubs(d){const k=5-d,names=(d===5?LEADERS.map(L=>L.club):DCLUBS[d]).concat(CLUBX.slice(k*4,k*4+4));
+  const leads=(d===5?LEADERS.map(L=>L.leader):[]).concat([...LEADX].sort(()=>Math.random()-.5));const SK=Object.keys(STYLES);
+  const tiers=[2,2,1,1,1,1,0,0,0].sort(()=>Math.random()-.5);
+  return names.map((n,i)=>({id:d*10+i,club:n,leader:leads[i],style:d===5?LEADERS[i%5].style:pick(SK),tier:tiers[i],hist:[]}))}
+function divClubs(d){S.dcl=S.dcl||{};if(!S.dcl[d])S.dcl[d]=genDivClubs(d);return S.dcl[d]}
+const newSeasonOpps=(season,d)=>{d=d==null?5:d;return divClubs(d).map(c=>{const lv=Math.max(1,divLv(d)+[-1,0,1][c.tier]);const o=makeOpp({club:c.club,leader:c.leader,style:c.style,tier:c.tier},lv);o.cid=c.id;o.tier=c.tier;return o})};
+function mkSched(){const n=NCLUBS;let a=[...Array(n).keys()];const R=[];for(let r=0;r<n-1;r++){const P=[];for(let i=0;i<n/2;i++){const x=a[i],y=a[n-1-i];P.push(r%2?[y,x]:[x,y])}R.push(P);a=[a[0],a[n-1],...a.slice(1,n-1)]}
+  R.sort(()=>Math.random()-.5);return R.concat(R.map(P=>P.map(([x,y])=>[y,x])))}
+function curOppIdx(d){const P=(S.sched||[])[d==null?S.day:d];if(!P)return -1;const p=P.find(p=>p[0]===0||p[1]===0);return p?(p[0]===0?p[1]:p[0])-1:-1}
+function curOpp(){const i=curOppIdx();return i>=0?S.opps[i]:null}
+function retierClubs(){const d=divOf(),C=divClubs(d),ord=[...S.opps].sort((a,b)=>b.pts-a.pts||b.w-a.w);ord.forEach((o,i)=>{const c=C.find(x=>x.id===o.cid);if(!c)return;c.hist.push({s:S.season,r:i+1});c.tier=i<2?2:i>=6?0:1})}
 function fixTeam(){
   ["0","1","2"].forEach(()=>{});
   const seen=new Set();S.team.forEach(m=>{if(m.slot&&(seen.has(m.slot)||seen.size>=5))m.slot=null;if(m.slot)seen.add(m.slot)});
@@ -2026,31 +2054,34 @@ function bindCur(o){if(!o||o._cur)return;
   Object.defineProperty(o,"shards",{get(){return P},set(v){},enumerable:false,configurable:true});
   Object.defineProperty(o,"_cur",{value:1,enumerable:false,configurable:true})}
 function newGame(){
-  S={gold:ECO.start,season:1,day:0,pts:0,sw:0,sl:0,team:[],market:[],opps:newSeasonOpps(1),plans:[null,null,null],items:[],tuto:{},club:{name:"Les Crocs de Bronze",col:0,emb:"flamme"},hist:[],div:5,cup:newCup()};
-  const a=makeMerc(1,"chevalier","commun"),b=makeMerc(1,"archer","rare");a.slot="0,1";b.slot="2,1";a.rules=defRules();b.rules=defRules();S.team=[a,b];S.captain=a.id;
+  S={gold:ECO.start,season:1,day:0,pts:0,sw:0,sl:0,team:[],market:[],opps:[],plans:[null,null,null],items:[],tuto:{},club:{name:"Les Crocs de Bronze",col:0,emb:"flamme"},hist:[],div:5,cup:newCup()};
+  S.opps=newSeasonOpps(1,5);S.sched=mkSched();const a=makeMerc(1,"chevalier","commun"),b=makeMerc(1,"archer","rare");a.slot="0,1";b.slot="2,1";a.rules=defRules();b.rules=defRules();S.team=[a,b];S.captain=a.id;["clerc","berserker","pyromancien"].forEach(c=>{const m=makeMerc(1,c,"commun");m.rules=defRules();m.slot=autoSlot(m,S.team);S.team.push(m)});
   S.arena=pick(AKEYS);S.terrain=pick(TKEYS);refreshMarket();bindCur(S);
 }
-const MEV={soldes:{l:"Soldes",d:"Toutes les recrues à −20 %",w:15,c:"#7fe08f"},foire:{l:"Foire aux héros",d:"3 recrues de plus, dont une épique ou mieux",w:12,c:"#e8be5a"},noir:{l:"Marché noir",d:"Un mercenaire mythique de passage, à prix fort",w:8,c:"#c07cff"},penurie:{l:"Pénurie",d:"Moins de recrues et prix +15 %",w:10,c:"#ff8b8b"}};
+const MEV={soldes:{l:"Soldes",d:"Toutes les recrues à −20 %",w:15,c:"#7fe08f"},foire:{l:"Foire aux héros",d:"3 recrues de plus, dont une de belle qualité",w:12,c:"#e8be5a"},noir:{l:"Marché noir",d:"Un mercenaire rare de grande qualité, de passage, à prix fort",w:8,c:"#c07cff"},penurie:{l:"Pénurie",d:"Moins de recrues et prix +15 %",w:10,c:"#ff8b8b"}};
 function rollMev(){if(Math.random()<.55)return null;const K=Object.keys(MEV);let x=Math.random()*K.reduce((a,k)=>a+MEV[k].w,0);for(const k of K){if((x-=MEV[k].w)<0)return k}return null}
-function mktLv(){return Math.max(1,(S.season||1)-1+ri(0,1)+(Math.random()<.15?1:0))}
+function mktLv(){return Math.max(1,divLv()-2+ri(0,1)+(Math.random()<.15?1:0))}
 function genMerc(i,foc){const lv=mktLv();let m=null;
-  if(typeof HEROES!=="undefined"&&Math.random()<.07){const own=new Set(S.team.map(m=>m.hk));const c=HEROES.filter(h=>!own.has(h[0])&&RKEYS.indexOf(h[3])<=3+Math.min(3,Math.floor(S.season/3)));if(c.length)m=makeNamed(pick(c)[0],lv)}
-  if(!m)m=makeMerc(lv,foc&&i%2===0?foc:null,null,(S.season||1)+bl("recru"));
+  if(typeof HEROES!=="undefined"&&namedMax()>=3&&Math.random()<.015+.007*(namedMax()-3)){const own=new Set(S.team.map(m=>m.hk));const c=HEROES.filter(h=>!own.has(h[0])&&RKEYS.indexOf(h[3])<=namedMax());if(c.length)m=makeNamed(pick(c)[0],lv)}
+  if(!m)m=makeMerc(lv,foc&&i%2===0?foc:null,recruitRarity(),stage());
   m.mp=+rnd(.8,1.3).toFixed(2);m.days=ri(1,3);return m}
+function rrCost(){return 20+10*(S.rrN||0)}function srCost(){return 25+10*(S.srN||0)}
 function evMul(){return S.mev==="soldes"?.8:S.mev==="penurie"?1.15:1}
 function mprice(m){return Math.round(price(m)*(m.mp||1)*evMul())}
 function dealTag(m){const r=(m.mp||1)*evMul();return r<.93?'<span class="tg good">Bonne affaire</span>':r>1.12?'<span class="tg bad">Cher</span>':'<span class="tg">Prix juste</span>'}
 function tomePool(){return Object.keys(SKILLS).filter(k=>/^k_/.test(SKILLS[k].b)&&!SKILLS[k].ult&&SKILLS[k].r<=Math.min(5,2+Math.floor((S.season||1)/2)))}
 function tomePrice(id){return Math.round(RPRICE[SKILLS[id].r]*1.2+20)}
 function refreshMarket(daily){
-  S.shop=[0,1,2].map(()=>makeItem(null,rollRarity(S.season||1)));
-  if(daily||S.mev===undefined){S.mev=rollMev();const P=tomePool();S.tshop=[0,1,2].map(()=>pick(P))}
-  const ev=S.mev,nM=Math.max(3,6+bl("recru")+(hasStaff("depisteur")?1:0)+(ev==="foire"?3:ev==="penurie"?-2:0)),foc=bl("recru")>=1&&S.focus&&CLASSES[S.focus]?S.focus:null;
+  S.shop=[0,1,2].map(()=>makeItem(null,rollRarity(stage())));
+  if(daily||S.mev===undefined){S.mev=rollMev();S.tshop=[]}
+  const ev=S.mev,nM=Math.max(3,6+Math.min(3,bl("recru"))+(hasStaff("depisteur")?1:0)+(ev==="foire"?3:ev==="penurie"?-2:0)),foc=bl("recru")>=1&&S.focus&&CLASSES[S.focus]?S.focus:null;
   const keep=daily?(S.market||[]).filter(m=>(m.days||1)>1).map(m=>{m.days--;return m}):(S.market||[]).filter(m=>m.noir);
   S.market=keep.slice(0,nM);let i=0;while(S.market.length<nM)S.market.push(genMerc(i++,foc));
-  if(ev==="foire"&&!S.market.some(m=>RKEYS.indexOf(m.rar)>=3)){const m=makeMerc(mktLv(),null,"epique");m.mp=1;m.days=1;S.market.push(m)}
-  if(ev==="noir"&&!S.market.some(m=>m.noir)){const m=makeMerc(mktLv(),null,"mythique");m.mp=1.6;m.days=1;m.noir=1;S.market.push(m)}
-  S.market.sort((a,b)=>RKEYS.indexOf(b.rar)-RKEYS.indexOf(a.rar));
+  if(ev==="foire"&&!S.market.some(m=>RKEYS.indexOf(m.rar)>=3)){const m=makeMerc(mktLv(),null,(divOf()<=4||bl("recru")>=2)?"epique":"rare");m.mp=1;m.days=1;S.market.push(m)}
+  if(ev==="noir"&&!S.market.some(m=>m.noir)){const m=makeMerc(mktLv(),null,(divOf()<=2||bl("recru")>=3)?"mythique":divOf()<=4?"legendaire":"epique");m.mp=1.6;m.days=1;m.noir=1;S.market.push(m)}
+  if(daily){S.rrN=0;S.srN=0}
+  if(daily&&fighters(S.team).length<5&&S.gold<50&&S.team.length<maxTeam()&&!S.market.some(m=>m.free)){const m=makeMerc(mktLv(),null,"commun");m.mp=0;m.days=1;m.free=1;S.market.push(m)}
+  S.market.sort((a,b)=>(b.free?1:0)-(a.free?1:0)||RKEYS.indexOf(b.rar)-RKEYS.indexOf(a.rar));
 }
 function save(){try{if(typeof testFill==="function")testFill();if(typeof achCheck==="function")achCheck();if(S)S.seenAt=Date.now();localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 function load(){
@@ -2066,6 +2097,7 @@ function load(){
   }
   if(!S.opps[0]||!S.opps[0].style){const old=S.opps;S.opps=newSeasonOpps(S.season);S.opps.forEach((o,i)=>{if(old[i]){o.pts=old[i].pts||0;o.w=old[i].w||0;o.l=old[i].l||0}})}
   if(!S.plans)S.plans=[null,null,null];if(S.div==null)S.div=5;if(!S.cup)S.cup=newCup();
+  if(!S.sched||S.opps.length!==NCLUBS-1){S.opps=newSeasonOpps(S.season,S.div);S.sched=mkSched();S.day=0;S.pts=0;S.sw=0;S.sl=0;S.cup=newCup()}
   if(!S.arena)S.arena=pick(AKEYS);if(!TERRAINS[S.terrain])S.terrain=pick(TKEYS);
   bindCur(S);fixTeam();if(typeof dailyCheck==="function")dailyCheck();
 }
@@ -2491,7 +2523,7 @@ const CBLOC={chevalier:[["defense","attaque","renfort"],"controle"],berserker:[[
 const RPRICE=[0,30,70,150,300,600];
 const WHEN={auto:"Logique automatique",groupe:"Sur un groupe d'ennemis",urgence:"Quand un allié est en danger",fort:"Sur l'ennemi le plus solide"};
 const blocOf=(m,b)=>b==="k_"+m.cls||b==="t_"+m.cls||b==="talent"||b.indexOf("e_"+m.cls)===0||CBLOC[m.cls][0].includes(b)?1:CBLOC[m.cls][1]===b?2:0;
-const skPrice=(m,id)=>0;
+const SKPR=[0,30,80,200,450,900];const skPrice=(m,id)=>{const s=SKILLS[id];if(!s||s.b==="leg"||id==="sig")return 0;return Math.round((SKPR[s.r]||0)*(blocOf(m,s.b)===2?2:1))};
 const xGlyph=s=>{const o=s.x[0][0],o2=(s.x[0][1]||"")+"";return o==="sum"?"invocation":o==="heal"||o==="hot"||o==="revive"||o==="cleanse"?"soin":o==="shield"||o==="taunt"||(o==="st"&&/dmgred|undying|reflect/.test(o2))?"defense":o==="st"&&/atkup|haste/.test(o2)?"renfort":o==="stun"||o==="fear"||o==="push"||(s.x[1]&&s.x[1][0]==="stun")?"controle":o==="dot"||(o==="st"&&/mark|blind|antiheal|slow/.test(o2))||o==="chain"||o==="selfdmg"?"ombre":o==="aoe"||o==="rain"?"zone":o==="evade"||o==="leap"||o==="blink"?"mobilite":"attaque"};
 const skIcon=(id,cls)=>{const s=SKILLS[id],b=s?BLOCS[s.b]:null;const glyph=id==="sig"?'<path d="M12 3l2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4 6.7 19.4l1.2-6L3.4 9.3l6-.7z"/>':s&&s.b==="leg"?'<path d="M3 18h18l-2-10-4 4-3-7-3 7-4-4z"/>':s&&s.x?BLOCS[xGlyph(s)].ic:b.ic;
   const col=id==="sig"?"#ffd27a":s.b==="leg"?"#f0b43a":b.c,fr=id==="sig"?"#ffd27a":s.b==="leg"?"#f0b43a":RANKC[s.r];
@@ -3615,7 +3647,7 @@ OPTL.wide="Vue d'ensemble (caméra fixe, sans zoom)";
 const optsHtml=p=>Object.keys(OPTL).map(k=>`<label class="chk"><input type="checkbox" data-opt="${k}" id="${p}-${k}" ${OPT[k]?"checked":""}><span>${OPTL[k]}</span></label>`).join("")+
   `<label class="rsel"><span>Chiffres de dégâts</span><select data-optsel="nums" id="${p}-nums">${[["tous","Tous"],["gros","Gros coups seulement"],["aucun","Aucun"]].map(([v,l])=>`<option value="${v}" ${OPT.nums===v?"selected":""}>${l}</option>`).join("")}</select></label>`+
   `<label class="rsel"><span>Qualité graphique</span><select data-optsel="q" id="${p}-q">${[["eco","Économie (plus fluide)"],["haute","Haute (lumières, ombres, détails)"]].map(([v,l])=>`<option value="${v}" ${OPT.q===v?"selected":""}>${l}</option>`).join("")}</select></label>`;
-function header(){$("gold").textContent=S.test?"∞":S.gold;{const c2=$("cur2");if(c2)c2.innerHTML=S.test?`${GEMS}∞ ${SHDS}∞`:`${GEMS}${S.gem||0} ${SHDS}${S.frag||0}`}$("season").textContent=S.season;$("day").textContent=Math.min(S.day+1,5);$("record").textContent=`${S.sw}V ${S.sl}D`}
+function header(){$("gold").textContent=S.test?"∞":S.gold;{const c2=$("cur2");if(c2)c2.innerHTML=S.test?`${GEMS}∞ ${SHDS}∞`:`${GEMS}${S.gem||0} ${SHDS}${S.frag||0}`}$("season").textContent=S.season;$("day").textContent=Math.min(S.day+1,NDAYS);$("record").textContent=`${S.sw}V ${S.sl}D`}
 function mercCard(m,list,i,actions,cls,extra){
   const t=stats(m);
   ensureSkills(m);
@@ -3660,18 +3692,18 @@ function calcRewards(W){
     let lvl=m.lvl,x=(m.xp||0)+gain;while(x>=80+60*lvl){x-=80+60*lvl;lvl++}
     const car=Object.assign({f:0,w:0,k:0,mvp:0,d:0,dmg:0,heal:0},m.car||{});car.f++;if(W.win)car.w++;car.k+=u.kills;if(u===mvp)car.mvp++;if(u.dead)car.d++;car.dmg+=u.dealt;car.heal+=u.healed;
     const newT=TITLES.filter(T=>T.ok(car)&&!(m.titles||[]).includes(T.k)).map(T=>T.k);
-    return {mid:m.id,dead:!!u.dead,gain,lvl0:m.lvl,lvl,x,car,newT,h:{o:(typeof lastFight!=="undefined"&&lastFight&&lastFight.cup)?lastFight.opp:(S.opps[S.day]||{}).name,s:S.season,d:S.day+1,w:!!W.win,k:u.kills,dm:Math.round(u.dealt),mvp:u===mvp}}}).filter(Boolean);
+    return {mid:m.id,dead:!!u.dead,gain,lvl0:m.lvl,lvl,x,car,newT,h:{o:(typeof lastFight!=="undefined"&&lastFight&&lastFight.cup)?lastFight.opp:(curOpp()||{}).name,s:S.season,d:S.day+1,w:!!W.win,k:u.kills,dm:Math.round(u.dealt),mvp:u===mvp}}}).filter(Boolean);
   return {stars,bonus,xp}}
-function grantRewards(rw){{const k=rw.xp.reduce((a,r)=>a+((r.h&&r.h.k)||0),0),dm=rw.xp.reduce((a,r)=>a+((r.h&&r.h.dm)||0),0);stc("ko",k);stc("dmg",dm);misEv("ko",k);if(rw.stars.every(Boolean)){stc("stars3");misEv("stars3")}}const ups=rw.xp.map(r=>{const m=S.team.find(t=>t.id===r.mid);return m&&r.lvl>m.lvl?[m,m.lvl,r.lvl]:null}).filter(Boolean);if(ups.length)setTimeout(()=>levelUpFx(ups),700);rw.xp.forEach(r=>{const m=S.team.find(t=>t.id===r.mid);if(!m)return;if(r.lvl>m.lvl)m.skp=(m.skp||0)+(r.lvl-m.lvl);m.lvl=r.lvl;m.xp=r.x;m.car=r.car;if(r.h)m.hist=(m.hist||[]).concat([r.h]).slice(-20);if(r.newT.length)m.titles=(m.titles||[]).concat(r.newT)});benchXp(rw);injTick(rw);save()}
+function grantRewards(rw){if(typeof lastFight!=="undefined"&&lastFight&&!lastFight.mode&&!lastFight.cup&&!lastFight.practice)rw.xp.forEach(r=>{if(r.h&&r.h.mvp){S.smvp=S.smvp||{};S.smvp[r.mid]=(S.smvp[r.mid]||0)+1}});{const k=rw.xp.reduce((a,r)=>a+((r.h&&r.h.k)||0),0),dm=rw.xp.reduce((a,r)=>a+((r.h&&r.h.dm)||0),0);stc("ko",k);stc("dmg",dm);misEv("ko",k);if(rw.stars.every(Boolean)){stc("stars3");misEv("stars3")}}const ups=rw.xp.map(r=>{const m=S.team.find(t=>t.id===r.mid);return m&&r.lvl>m.lvl?[m,m.lvl,r.lvl]:null}).filter(Boolean);if(ups.length)setTimeout(()=>levelUpFx(ups),700);rw.xp.forEach(r=>{const m=S.team.find(t=>t.id===r.mid);if(!m)return;if(r.lvl>m.lvl)m.skp=(m.skp||0)+(r.lvl-m.lvl);m.lvl=r.lvl;m.xp=r.x;m.car=r.car;if(r.h)m.hist=(m.hist||[]).concat([r.h]).slice(-20);if(r.newT.length)m.titles=(m.titles||[]).concat(r.newT)});benchXp(rw);injTick(rw);save()}
 function rewardsHtml(rw){
   const st=["Victoire","Personne n'est tombé","Victoire en moins de 28 s"];
   return `<div class="stars">${rw.stars.map((ok,i)=>`<div class="star${ok?" on":""}" style="animation-delay:${.15+i*.25}s"><svg viewBox="0 0 24 24"><path d="M12 2.8l2.8 5.8 6.4.8-4.7 4.4 1.2 6.3L12 17l-5.7 3.1 1.2-6.3L2.8 9.4l6.4-.8z"/></svg><span>${st[i]}</span></div>`).join("")}</div>
     <div class="xpl">${rw.xp.map(r=>{const m=S.team.find(t=>t.id===r.mid);const up=r.lvl>r.lvl0;return `<div class="xpr" ${rv(m)}><span class="por sm"><img src="${portrait(m)}" alt=""></span><span class="xpt"><b>${m.name}</b><i><b style="width:${Math.round(r.x/(80+60*r.lvl)*100)}%"></b></i></span><span class="xpg">+${r.gain} XP${up?`<em>Niveau ${r.lvl} !</em>`:""}${r.newT.map(k=>`<em class="tt">« ${TITLES.find(T=>T.k===k).l} »</em>`).join("")}</span></div>`}).join("")}</div>`}
 /* Prévision des chances (simulations en arrière-plan, sans bloquer l'écran) */
 let oddsJob=null;const ODDS={};
-function oddsKey(){const o=S.opps[S.day];return JSON.stringify([S.day,S.season,S.terrain,S.arena,S.captain,fighters(S.team).map(m=>[m.id,m.slot,m.lvl,m.rar,m.rules,m.gear&&gearKey(m),m.skills&&m.skills.eq]),o&&o.name])}
-function startOdds(){const el=$("odds");if(!el||S.day>=5)return;const key=oddsKey();if(ODDS[key]!=null){showOdds(ODDS[key]);return}
-  if(oddsJob)clearTimeout(oddsJob.t);const cp=x=>x?JSON.parse(JSON.stringify(x)):null,o=S.opps[S.day];
+function oddsKey(){const o=curOpp();return JSON.stringify([S.day,S.season,S.terrain,S.arena,S.captain,fighters(S.team).map(m=>[m.id,m.slot,m.lvl,m.rar,m.rules,m.gear&&gearKey(m),m.skills&&m.skills.eq]),o&&o.name])}
+function startOdds(){const el=$("odds");if(!el||S.day>=NDAYS)return;const key=oddsKey();if(ODDS[key]!=null){showOdds(ODDS[key]);return}
+  if(oddsJob)clearTimeout(oddsJob.t);const cp=x=>x?JSON.parse(JSON.stringify(x)):null,o=curOpp();
   const job={key,n:0,w:0,N:10};oddsJob=job;el.innerHTML=`<span class="muted">Estimation de tes chances…</span>`;
   const step=()=>{if(oddsJob!==job)return;const A=cp(fighters(S.team)),B=cp(fighters(o.team));
     const r=simulate(A,B,S.arena,null,{subA:cp(benchOf(S.team)[0]),subB:cp(benchOf(o.team)[0]),capA:S.captain,capB:o.captain,terrain:S.terrain});job.n++;if(r.win)job.w++;
@@ -3683,8 +3715,8 @@ function adviseTeam(){const T=S.team;if(!T.length)return;const sorted=[...T].sor
   if(!pick5.some(m=>!RANGED.has(m.cls)&&m.cls!=="assassin")){const t=sorted.find(m=>!RANGED.has(m.cls)&&m.cls!=="assassin");if(t)pick5[4]=t}
   T.forEach(m=>m.slot=null);formation5(pick5);fixTeam();save()}
 /* Prochaine étape */
-function nextStep(){const F=fighters(S.team),o=S.opps[S.day];
-  if(S.day>=5)return {t:"La saison est terminée",b:"Voir le classement",a:"goleague"};
+function nextStep(){const F=fighters(S.team),o=curOpp();
+  if(S.day>=NDAYS)return {t:"La saison est terminée",b:"Voir le classement",a:"goleague"};
   if(S.team.length<5)return {t:`Il te manque ${5-S.team.length} combattant${5-S.team.length>1?"s":""}`,b:"Recruter",a:"gomarket"};
   if(F.length<5)return {t:"Place 5 combattants sur la table",b:"Équipe conseillée",a:"advise"};
   const free=(S.items||[]).length;if(free)return {t:`${free} objet${free>1?"s":""} dans ton coffre à équiper`,b:"Équiper",a:"equipnext"};
@@ -3721,28 +3753,30 @@ function titleScreen(force){if(window._titleShown&&!force)return;window._titleSh
   const el=document.createElement("div");el.className="ttl-scr";document.body.appendChild(el);
   const close=()=>{el.style.transition="opacity .35s";el.style.opacity=0;setTimeout(()=>el.remove(),350);render()};
   const home=()=>{const fresh=!!window._fresh;el.innerHTML=`<div class="rays"></div><div class="ttl-in">${crestSvg(S.club,"crest")}<h1>Club de l'Arène</h1><p>Recrute. Prépare. Triomphe.</p>${ttlHeroes()}
-    ${fresh?"":`<button class="btn main big" data-t="cont">Continuer</button><p class="ttl-sub"><b>${CLUB}</b> · saison ${S.season}, journée ${Math.min(S.day+1,5)} sur 5</p>`}
+    ${fresh?"":`<button class="btn main big" data-t="cont">Continuer</button><p class="ttl-sub"><b>${CLUB}</b> · saison ${S.season}, journée ${Math.min(S.day+1,NDAYS)} sur ${NDAYS}</p>`}
     <button class="btn ${fresh?"main ":""}big" data-t="new">Nouvelle partie</button><button class="btn big" data-t="slots">Sauvegardes</button></div>`};
   const slots=()=>{el.innerHTML=`<div class="ttl-in wide"><h1 class="sm">Sauvegardes</h1>${[1,2,3].map(n=>{const d=n===SLOT&&!window._fresh?S:slotInfo(n),c=d&&(d.club||{name:"Les Crocs de Bronze"});
-      return `<div class="slotc${n===SLOT?" cur":""}">${d?crestSvg(c,"crest"):'<span class="crest empty"></span>'}<div class="slot-t"><b>${d?c.name:"Emplacement "+n+" libre"}</b><em>${d?`Saison ${d.season} · journée ${Math.min(d.day+1,5)}/5 · ${d.team.length} combattants`:"Commence un nouveau club ici"}</em></div>
+      return `<div class="slotc${n===SLOT?" cur":""}">${d?crestSvg(c,"crest"):'<span class="crest empty"></span>'}<div class="slot-t"><b>${d?c.name:"Emplacement "+n+" libre"}</b><em>${d?`Saison ${d.season} · journée ${Math.min(d.day+1,NDAYS)}/${NDAYS} · ${d.team.length} combattants`:"Commence un nouveau club ici"}</em></div>
         <div class="slot-a">${d?`<button class="btn main sm" data-t="load" data-n="${n}">Jouer</button><button class="btn sm" data-t="del" data-n="${n}">Supprimer</button>`:`<button class="btn sm" data-t="new" data-n="${n}">Créer</button>`}</div></div>`}).join("")}
       <button class="btn big" data-t="home">Retour</button></div>`};
-  let F={name:"",col:0,emb:"flamme",n:1};
+  let F={name:"",col:0,emb:"flamme",n:1,diff:"normal"};
   const form=n=>{const free=[1,2,3].find(k=>!slotInfo(k)&&!(k===SLOT&&!window._fresh));F.n=n||(window._fresh?SLOT:free)||SLOT;draw()};
   const draw=()=>{const occ=!(window._fresh&&F.n===SLOT)&&slotInfo(F.n);el.innerHTML=`<div class="ttl-in wide"><h1 class="sm">Fonde ton club</h1><div class="cf-prev">${crestSvg(F,"crest big")}<b>${F.name||"Nom du club"}</b></div>
     <label class="cf-l">Nom du club<input id="cf-name" maxlength="24" placeholder="Ex. Les Lames du Nord" value="${F.name.replace(/"/g,"&quot;")}" autocomplete="off"></label>
     <div class="cf-l">Couleur</div><div class="cf-row">${CPAL.map((p,k)=>`<button class="sw${F.col===k?" on":""}" data-t="col" data-k="${k}" style="background:linear-gradient(180deg,${p[1]},${p[2]})" aria-label="${p[0]}"></button>`).join("")}</div>
     <div class="cf-l">Emblème</div><div class="cf-row">${Object.keys(CEMB).map(k=>`<button class="embb${F.emb===k?" on":""}" data-t="emb" data-k="${k}" aria-label="${CEMB[k][0]}">${crestSvg({col:F.col,emb:k},"crest")}</button>`).join("")}</div>
     <div class="cf-l">Emplacement</div><div class="cf-row">${[1,2,3].map(k=>{const d=!(window._fresh&&k===SLOT)&&slotInfo(k);return `<button class="slb${F.n===k?" on":""}" data-t="sl" data-k="${k}"><b>${k}</b><em>${d?(d.club||{name:"Les Crocs de Bronze"}).name:"libre"}</em></button>`}).join("")}</div>
+    <div class="cf-l">Difficulté</div><div class="cf-row">${DIFFS.map(([k,l,d])=>`<button class="slb${F.diff===k?" on":""}" data-t="df" data-k="${k}"><b>${l}</b><em>${d}</em></button>`).join("")}</div>
+    <p class="hint" style="margin:6px 2px 0;text-align:left">${DIFFS.find(x=>x[0]===F.diff)[3]}</p>
     ${occ?`<p class="cf-warn">Cet emplacement contient « ${(occ.club||{name:"Les Crocs de Bronze"}).name} ». Il sera remplacé.</p>`:""}
     <button class="btn main big" data-t="found">Fonder le club</button><button class="btn big" data-t="home">Retour</button></div>`;
     const inp=el.querySelector("#cf-name");inp.oninput=()=>{F.name=inp.value;el.querySelector(".cf-prev b").textContent=F.name||"Nom du club"}};
   el.addEventListener("click",e=>{const b=e.target.closest("[data-t]");if(!b)return;const t=b.dataset.t,n=+b.dataset.n||0,k=b.dataset.k;
     if(t==="cont")close();else if(t==="home")home();else if(t==="slots")slots();else if(t==="new")form(n);
-    else if(t==="col"){F.col=+k;draw()}else if(t==="emb"){F.emb=k;draw()}else if(t==="sl"){F.n=+k;draw()}
+    else if(t==="col"){F.col=+k;draw()}else if(t==="emb"){F.emb=k;draw()}else if(t==="sl"){F.n=+k;draw()}else if(t==="df"){F.diff=k;draw()}
     else if(t==="load"){window._fresh=false;switchSlot(n);close()}
     else if(t==="del"){if(b.dataset.arm!=="1"){b.dataset.arm="1";b.textContent="Confirmer ?";return}try{localStorage.removeItem(slotKey(n))}catch(e){}if(n===SLOT){window._fresh=true;newGame();}slots()}
-    else if(t==="found"){const nm=(F.name||"").trim()||"Les Crocs de Bronze";useSlot(F.n);newGame();S.club={name:nm.slice(0,24),col:F.col,emb:F.emb};CLUB=S.club.name;window._fresh=false;lastFight=null;tab="home";save();close();toast(`${CLUB} est fondé !`)}});
+    else if(t==="found"){const nm=(F.name||"").trim()||"Les Crocs de Bronze";useSlot(F.n);newGame();S.diff=F.diff||"normal";S.dcl=null;S.opps=newSeasonOpps(1,5);S.sched=mkSched();refreshMarket();S.club={name:nm.slice(0,24),col:F.col,emb:F.emb};CLUB=S.club.name;window._fresh=false;lastFight=null;tab="home";save();close();toast(`${CLUB} est fondé !`)}});
   home()}
 /* ===== V4.0 : interface ===== */
 const NAVIC={home:'<path d="M3 11l9-7 9 7"/><path d="M5 10v10h5v-6h4v6h5V10"/>',club:'<path d="M4 21V9l8-5 8 5v12"/><path d="M9 21v-6h6v6M4 21h16M12 4v-2M12 2h4l-1 1.5 1 1.5h-4"/>',team:'<path d="M5 11a7 7 0 0 1 14 0v5l-3 4H8l-3-4z"/><path d="M5 12h14M12 12v8"/>',market:'<path d="M9 3h6l-1.6 3.4h-2.8z"/><path d="M8.6 6.6C5.3 8.6 4 12.6 5 16.2 5.9 19.6 8.8 21 12 21s6.1-1.4 7-4.8c1-3.6-.3-7.6-3.6-9.6z"/><path d="M13.8 11.2c-.4-.8-1.1-1.2-2-1.2-1.2 0-2 .7-2 1.6 0 2.2 4.2 1.2 4.2 3.4 0 .9-.9 1.6-2.1 1.6-1 0-1.8-.5-2.2-1.3M12 8.8V10M12 16.6v1.2"/>',league:'<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5v1a3 3 0 0 0 3 3M16 6h3v1a3 3 0 0 1-3 3M12 13v4M8 20.5h8M9.5 17h5"/>',guide:'<path d="M3 5h6a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H3z"/><path d="M21 5h-6a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h7z"/>'};
@@ -3806,7 +3840,7 @@ function settingsHtml(){return `<h2>Réglages</h2>
   <div class="card flat"><div class="kicker">Son et sensations</div>${tog('id="set-snd" data-snd="1"',"Son et musique","Ambiance de la foule, impacts, fanfares",SND.on)}${tog('data-opt="vib" id="set-vib"',"Vibrations","Au recrutement, au butin et aux temps forts",OPT.vib!==false)}</div>
   <div class="card flat"><div class="kicker">Affichage</div>${tog('data-opt="dense" id="set-dense"',"Affichage compact","Moins d'espace entre les blocs : plus d'infos à l'écran",!!OPT.dense)}${tog('data-opt="txl" id="set-txl"',"Texte plus grand","Agrandit toute l'interface de 10 %",OPT.txl)}${tog('data-opt="lowfx" id="set-lowfx"',"Animations réduites","Moins de mouvements dans les menus",OPT.lowfx)}</div>
   <details class="card flat det"><summary>Combat · réglages avancés</summary>${optsHtml("set")}</details>
-  <div class="card flat"><div class="kicker">Difficulté</div><div class="seg" style="margin-top:6px">${[["facile","Facile"],["normal","Normal"],["difficile","Difficile"]].map(([k,l])=>`<button aria-pressed="${(S.diff||"normal")===k}" data-a="diff" data-v="${k}">${l}</button>`).join("")}</div><p class="hint" style="margin:8px 0 0">Facile : adversaires plus faibles, −10 % d'or. Difficile : plus forts, +20 % d'or. S'applique à la saison suivante.</p></div>
+  <div class="card flat"><div class="kicker">Difficulté</div><div class="seg" style="margin-top:6px">${DIFFS.map(([k,l],j)=>`<button aria-pressed="${(S.diff||"normal")===k}" data-a="diff" data-v="${k}" ${!S.test&&j>DIFFS.findIndex(x=>x[0]===(S.diff||"normal"))?"disabled":""}>${l}</button>`).join("")}</div><p class="hint" style="margin:8px 0 0">${DIFFS.find(x=>x[0]===(S.diff||"normal"))[3]} Choisie à la fondation du club : on peut seulement la baisser. S'applique à la saison suivante.</p></div>
   <div class="card flat"><div class="kicker">Partie</div><button class="btn big" data-a="testmode" style="margin-top:8px">${S.test?"Désactiver le mode administrateur":"Mode administrateur (tout illimité)"}</button><div class="row" style="gap:8px;margin-top:8px"><button class="btn" style="flex:1" data-a="exp">Exporter</button><button class="btn" style="flex:1" data-a="imp">Importer</button></div><button class="btn big" style="margin-top:8px" data-a="reset">Recommencer ce club</button></div>
   <p class="hint" style="text-align:center;margin:4px 0 0">Club de l'Arène · version 3.0</p>`}
 /* ===== 2.1 Effectif ===== */
@@ -3863,7 +3897,7 @@ function codexClassesHtml(sel){const K=Object.keys(CLASSES);let h=`<h2>Codex des
 function roleBar(F){const rc=roleCount(F),miss=[];if(F.length){if(!rc.tank)miss.push("un tank");if(!(rc.soin+rc.soutien))miss.push("un soigneur ou soutien");if(rc.degats<2)miss.push(rc.degats?"un 2e attaquant":"deux attaquants")}
   return `<div class="rolebar">${Object.keys(ROLEL).map(k=>`<span class="rp${rc[k]?" on":""}"><b>${rc[k]}</b>${ROLEL[k]}</span>`).join("")}</div><p class="hint" style="margin:6px 2px 4px">${!F.length?"":miss.length?`Pour une <b style="color:var(--fg)">équipe équilibrée</b> (+5 % PV), il manque ${miss.join(", ")}.`:`<b style="color:#a6dcb2">Équipe équilibrée</b> : +5 % de PV pour tous.`}</p>`}
 /* ===== 3.3–3.4 Évolutions et raretés de classe ===== */
-const EVOREQ=[{lvl:5,cost:150,rar:0},{lvl:10,cost:400,rar:0},{lvl:15,cost:1000,rar:0}];
+const EVOREQ=[{lvl:5,cost:400,gem:5,rar:0},{lvl:10,cost:1500,gem:15,rar:0},{lvl:15,cost:4000,gem:40,rar:0}];
 const EVOFX=["+8 % PV et attaque · signature +10 %","+8 % PV et attaque · signature +10 % · 1 emplacement de compétence en plus","+8 % PV et attaque · signature +10 % · aura d'ascension"];
 const clsName=m=>m.evo?EVO[m.cls][m.evo-1]:CLASSES[m.cls].label;
 const canEvolve=m=>{const t=m.evo||0,R=EVOREQ[t];return !!R&&m.lvl>=R.lvl&&RKEYS.indexOf(m.rar)>=R.rar&&(S.test||S.gold>=R.cost)};
@@ -3873,7 +3907,7 @@ function evoNodes(cls,m){const t=m?(m.evo||0):-1;return [{n:CLASSES[cls].label,r
 function evoLookHtml(m){const I=RIG.evoInfo(m.cls,m.rar),t=m.evo||0;return `<div class="evlook">${[0,1,2,3].map(k=>{const c=Object.assign({},m,{evo:k,_lk:null});return `<div class="${k<=t?"on":""}"><img src="${RIG.card(c,108,120)}" alt=""><b>${k?I[k-1].n:"Base"}</b></div>`}).join("")}</div>`}
 function evoCardHtml(m,i){const N=evoNodes(m.cls,m),t=m.evo||0,R=EVOREQ[t],rdy=N[t+1]&&N[t+1].st==="ready";
   return `<div class="card flat"><div class="card-h"><div class="kicker">Parcours du héros${tip("evo")}</div><span class="badge">${t}/3</span></div>${evoLookHtml(m)}<div class="evp">${N.map((x,k)=>`<div class="evn ${x.st}"><i>${k===0?"◆":["I","II","III"][k-1]}</i><b>${x.n}</b><em>${x.st==="done"?(k===0?"Classe de base":"Atteint"):x.req}</em></div>`).join('<span class="evl"></span>')}</div>
-    ${R?`<p class="hint" style="margin:10px 0 0">Prochaine évolution : <b style="color:var(--fg)">${EVO[m.cls][t]}</b> · ${EVOFX[t]}.</p>${rdy?`<button class="btn main big" style="margin-top:10px" data-a="evolve" data-i="${i}" ${!S.test&&S.gold<R.cost?"disabled":""}>Faire évoluer · ${S.test?"gratuit":R.cost+" or"}</button>`:""}`:`<p class="hint" style="margin:10px 0 0"><b style="color:var(--gild-hi)">Ascension complète.</b> Ce héros a atteint sa forme ultime.</p>`}</div>`}
+    ${R?`<p class="hint" style="margin:10px 0 0">Prochaine évolution : <b style="color:var(--fg)">${EVO[m.cls][t]}</b> · ${EVOFX[t]}.</p>${rdy?`<button class="btn main big" style="margin-top:10px" data-a="evolve" data-i="${i}" ${!S.test&&(S.gold<R.cost||(S.gem||0)<(R.gem||0))?"disabled":""}>Faire évoluer · ${S.test?"gratuit":R.cost+" or + "+(R.gem||0)+" gemmes"}</button>`:""}`:`<p class="hint" style="margin:10px 0 0"><b style="color:var(--gild-hi)">Ascension complète.</b> Ce héros a atteint sa forme ultime.</p>`}</div>`}
 function evoPathHtml(cls){return `<div class="kicker" style="margin-top:12px">Évolutions</div><div class="evp">${evoNodes(cls).map((x,k)=>`<div class="evn ${k?"lock":"done"}"><i>${k===0?"◆":["I","II","III"][k-1]}</i><b>${x.n}</b><em>${k?x.req:"Classe de base"}</em></div>`).join('<span class="evl"></span>')}</div><p class="hint" style="margin:8px 0 0">Chaque évolution : +8 % PV et attaque, signature +10 %. La 2e ajoute un emplacement de compétence et débloque l'ultime. Chaque rareté a ses 3 tenues d'évolution.</p>`}
 function libraryHtml(){S.lib=S.lib||[];const kn=new Set([...S.lib,...S.team.flatMap(m=>(m.skills&&m.skills.known)||[]),...S.team.filter(m=>m.legend).map(m=>m.legend)]);const all=Object.keys(SKILLS);
   let h=`<h2>Bibliothèque</h2><p class="hint">${kn.size} compétence${kn.size>1?"s":""} découverte${kn.size>1?"s":""} sur ${all.length}. Apprends-en de nouvelles au grimoire ou grâce aux tomes.</p><div class="meter" style="margin-bottom:12px"><b style="width:${Math.round(kn.size/all.length*100)}%"></b></div>`;
@@ -3986,13 +4020,13 @@ const HK=Object.fromEntries(HEROES.map(h=>[h[0],h]));window.HEROES=HEROES;
 const hseed=k=>{let h=7;for(const c of k)h=(h*131+c.charCodeAt(0))>>>0;return h%2147483647};
 function makeNamed(k,lvl){const H=HK[k];if(!H)return null;const m=makeMerc(lvl||1,H[2],H[3]);m.name=H[1];m.seed=hseed(k);m.hk=k;m.sp=H[4]||"humain";giveRolls(m,true);m.var=H[5];m.pers=H[6];m.bio=H[7];m.legend=null;ensureSkills(m);return m}
 /* ===== Phase 8 : coffres, éveil, codex, vitrine ===== */
-const CHESTS={bois:{l:"Coffre en bois",g:60,w:[60,30,10,0,0,0,0],c:"#a0784a"},bronze:{l:"Coffre de bronze",g:180,w:[25,40,25,9,1,0,0],c:"#c98a4a"},argent:{l:"Coffre d'argent",g:450,w:[0,20,45,25,8,2,0],c:"#c8d0dc"},or:{l:"Coffre d'or",g:1100,w:[0,0,30,40,22,7,1],c:"#f0c860"},divin:{l:"Coffre divin",k:10,w:[0,0,0,0,60,28,12],c:"#fff0bd"}};
+const CHESTS={bois:{l:"Coffre en bois",g:60,w:[60,30,10,0,0,0,0],c:"#a0784a"},bronze:{l:"Coffre de bronze",g:180,w:[35,40,19,5.5,.5,0,0],c:"#c98a4a"},argent:{l:"Coffre d'argent",g:450,w:[0,30,45,20,4.5,.5,0],c:"#c8d0dc"},or:{l:"Coffre d'or",g:1100,w:[0,10,40,35,13,1.8,.2],c:"#f0c860"},divin:{l:"Coffre divin",k:10,w:[0,0,0,0,60,28,12],c:"#fff0bd"}};
 const CHK=Object.keys(CHESTS);
 const chestIc=(k,sz)=>`<svg class="chi" viewBox="0 0 48 40" style="--cc:${CHESTS[k]?CHESTS[k].c:"#c8a060"};width:${sz||44}px"><path d="M6 18h36v18H6z" fill="color-mix(in srgb,var(--cc) 55%,#2a1a0e)" stroke="#1c120a" stroke-width="1.5"/><path d="M6 18c0-9 8-14 18-14s18 5 18 14z" fill="color-mix(in srgb,var(--cc) 75%,#3a2410)" stroke="#1c120a" stroke-width="1.5"/><path d="M6 18h36M24 4v32" stroke="var(--cc)" stroke-width="2.4"/><rect x="20" y="15" width="8" height="9" rx="1.5" fill="var(--cc)" stroke="#1c120a" stroke-width="1.2"/></svg>`;
-function seasonChest(){const K=Object.keys(CLASSES),c=S.chcls&&CLASSES[S.chcls]?S.chcls:K[(S.season*7+3)%K.length];return {k:"saison",l:`Coffre de classe · ${CLASSES[c].label}`,cls:c,keys:5,w:[0,10,40,32,14,3.5,.5],c:CCOL[c]}}
+function seasonChest(){const K=Object.keys(CLASSES),c=S.chcls&&CLASSES[S.chcls]?S.chcls:K[(S.season*7+3)%K.length];return {k:"saison",l:`Coffre de classe · ${CLASSES[c].label}`,cls:c,keys:20,w:[0,20,45,25,8.5,1.3,.2],c:CCOL[c]}}
 const rollW=w=>{let x=Math.random()*w.reduce((a,b)=>a+b,0);for(let i=0;i<w.length;i++){if((x-=w[i])<0)return RKEYS[i]}return "commun"};
 function chestReward(k){const C=k==="saison"?seasonChest():CHESTS[k];let w=C.w.slice();S.pity=S.pity||0;
-  if(k!=="bois"&&k!=="divin"&&S.pity>=9)w=w.map((v,i)=>i>=3?v||1:0);
+  if(k!=="bois"&&k!=="divin"&&S.pity>=12)w=w.map((v,i)=>i>=3?v||1:0);
   if(k==="divin"){S.dpity=(S.dpity||0)+1;if(S.dpity>=5)w=[0,0,0,0,0,0,1]}
   const rar=rollW(w),ri_=RKEYS.indexOf(rar);if(ri_>=3)S.pity=0;else if(k!=="bois")S.pity++;if(rar==="divin")S.dpity=0;
   const r=Math.random(),type=k==="divin"?(r<.6?"hero":"item"):k==="saison"?(r<.6?"hero":"item"):(r<.45?"hero":"item");
@@ -4018,7 +4052,7 @@ function crestOrn(){const H=S.hist||[],ch=H.filter(x=>x.rank===1).length,bd=S.be
 function clubCrest(cls){const o=crestOrn();return `<span class="ccr${o.lau?" lau":""}">${o.cr?'<svg class="ccrown" viewBox="0 0 24 12"><path d="M2 11 1 2l6 5 5-6 5 6 6-5-1 9z" fill="#f0c860" stroke="#6b5022" stroke-width="1"/></svg>':""}${crestSvg(S.club,cls)}${o.st?`<span class="cstars">${"★".repeat(o.st)}</span>`:""}</span>`}
 /* ===== 21.6 Parcours du débutant (3 premiers matchs) ===== */
 const GUIDE=[{t:"Joue ton premier match",d:"Touche « Jouer » : tes héros se battent seuls selon leur tactique.",ok:()=>stv("fights")>=1,r:[60,0]},
-  {t:"Aligne 5 titulaires et joue ton 2e match",d:"Recrute au Marché si besoin, puis Effectif › « Meilleure équipe ».",ok:()=>fighters(S.team).length>=5&&stv("fights")>=2,r:[100,0]},
+  {t:"Recrute un combattant et joue ton 2e match",d:"Le club t'offre 5 combattants. Renforce-toi au Marché (onglet Marché), puis joue.",ok:()=>stv("recruits")>=1&&stv("fights")>=2,r:[100,0]},
   {t:"Améliore un héros et joue ton 3e match",d:"Apprends une technique (grimoire) ou entraîne un héros (Niv+).",ok:()=>stv("fights")>=3&&S.team.some(m=>m.lvl>=2||(m.skills&&m.skills.known.length>=2)),r:[0,3]}];
 function guideTick(){if(S.guideDone)return;let g=S.guide||0;while(g<3&&GUIDE[g].ok()){const R=GUIDE[g].r;S.gold+=R[0];S.gem=(S.gem||0)+R[1];setTimeout((t=>()=>toast(t))(`Parcours du débutant : étape ${g+1} réussie (${R[0]?"+"+R[0]+" or":"+"+R[1]+" gemmes"})`),900);g++}S.guide=g;if(g>=3)S.guideDone=1}
 function begHtml(){if(S.guideDone||(S.season||1)>1)return "";const g=S.guide||0,G=GUIDE[g];if(!G)return "";
@@ -4034,16 +4068,16 @@ function chestsHtml(){S.chests=S.chests||{};const sc=seasonChest(),own=CHK.filte
     ${own.length?`<div class="kicker">Tes coffres</div><div class="chown">${own.map(k=>`<button class="chc own" data-a="chopen" data-k="${k}">${chestIc(k,36)}<b>${CHESTS[k].l}</b><em>Ouvrir · ${S.chests[k]}</em></button>`).join("")}</div>`:""}
     <div class="kicker" style="margin-top:${own.length?10:0}px">Acheter</div>
     <div class="chgrid c3">${CHBUY.map(k=>{const C=CHESTS[k];return `<div class="chc">${chestIc(k)}<b>${k==="bronze"?"Coffre":"Grand coffre"}</b><em class="chd">${k==="bronze"?"Pour bien démarrer":"Rare ou mieux le plus souvent"}</em><button class="btn sm${S.test||S.gold>=C.g?" main":""}" data-a="chbuy" data-k="${k}" ${!S.test&&S.gold<C.g?"disabled":""}>${S.test?"gratuit":C.g+" or"}</button></div>`}).join("")}
-      <div class="chc dv">${chestIc("divin")}<b>Coffre divin</b><em class="chd">Légendaire ou mieux</em><button class="btn sm main" data-a="chkey" data-k="divin" ${(S.keys||0)<10&&!S.test?"disabled":""}>${GEMS} 10</button></div></div>
+      <div class="chc dv">${chestIc("divin")}<b>Coffre divin</b><em class="chd">Légendaire ou mieux</em><button class="btn sm main" data-a="chkey" data-k="divin" ${(S.keys||0)<60&&!S.test?"disabled":""}>${GEMS} 60</button></div></div>
     <div class="chsp" style="--cc:${sc.c}">${chestIc("x",52).replace("--cc:#c8a060","--cc:"+sc.c)}<span><b>Coffre de classe</b><em>Choisis ta classe : un héros ${CLASSES[sc.cls].label.toLowerCase()} garanti dans 60 % des cas.</em><select id="chcls" class="chsel">${Object.keys(CLASSES).map(k=>`<option value="${k}" ${k===sc.cls?"selected":""}>${CLASSES[k].label}</option>`).join("")}</select></span><button class="btn sm main" data-a="chkey" data-k="saison" ${(S.keys||0)<sc.keys&&!S.test?"disabled":""}>${GEMS} ${sc.keys}</button></div>
-    <p class="hint" style="margin:8px 0 0">Garantie : un butin Épique ou mieux au plus tard dans ${Math.max(1,10-(S.pity||0))} ouverture${10-(S.pity||0)>1?"s":""}. Divin garanti au 5e coffre divin. Gagne des gemmes et des coffres en remportant des matchs.</p></div>`}
+    <p class="hint" style="margin:8px 0 0">Garantie : un butin Épique ou mieux au plus tard dans ${Math.max(1,13-(S.pity||0))} ouverture${13-(S.pity||0)>1?"s":""}. Divin garanti au 5e coffre divin. Gagne des gemmes et des coffres en remportant des matchs.</p></div>`}
 function chestsHtml0(){S.chests=S.chests||{};const sc=seasonChest();
   return `<div class="card"><div class="card-h"><h2>Coffres</h2><span class="badge">💎 ${S.keys||0} gemmes</span></div>
     <div class="chgrid">${CHK.filter(k=>k!=="divin").map(k=>{const n=S.chests[k]||0,C=CHESTS[k];return `<div class="chc">${chestIc(k)}<b>${C.l}</b>${n?`<button class="btn sm main" data-a="chopen" data-k="${k}">Ouvrir (${n})</button>`:`<button class="btn sm" data-a="chbuy" data-k="${k}" ${!S.test&&S.gold<C.g?"disabled":""}>${S.test?"gratuit":C.g+" or"}</button>`}</div>`}).join("")}</div>
     <div class="chsp" style="--cc:${sc.c}">${chestIc("x",52).replace("--cc:#c8a060","--cc:"+sc.c)}<span><b>${sc.l}</b><em>Coffre de la saison : un héros ${CLASSES[sc.cls].label.toLowerCase()} garanti dans 60 % des cas. Change à chaque saison.</em></span><button class="btn sm main" data-a="chkey" data-k="saison" ${(S.keys||0)<sc.keys&&!S.test?"disabled":""}>💎 ${sc.keys}</button></div>
-    <div class="chsp div" style="--cc:#fff0bd">${chestIc("divin",52)}<span><b>Coffre divin</b><em>Légendaire ou mieux, 12 % de Divin. Divin garanti au 5e coffre.</em></span><button class="btn sm main" data-a="chkey" data-k="divin" ${(S.keys||0)<10&&!S.test?"disabled":""}>💎 10</button></div>
-    <p class="hint" style="margin:8px 0 0">Garantie : un butin Épique ou mieux au plus tard dans ${Math.max(1,10-(S.pity||0))} ouverture${10-(S.pity||0)>1?"s":""} (hors bois). Gagne des gemmes et des coffres en remportant des matchs.</p></div>`}
-const awkCost=m=>((m.stars||0)+1)*(m.hk?10:1);
+    <div class="chsp div" style="--cc:#fff0bd">${chestIc("divin",52)}<span><b>Coffre divin</b><em>Légendaire ou mieux, 12 % de Divin. Divin garanti au 5e coffre.</em></span><button class="btn sm main" data-a="chkey" data-k="divin" ${(S.keys||0)<60&&!S.test?"disabled":""}>💎 60</button></div>
+    <p class="hint" style="margin:8px 0 0">Garantie : un butin Épique ou mieux au plus tard dans ${Math.max(1,13-(S.pity||0))} ouverture${13-(S.pity||0)>1?"s":""} (hors bois). Gagne des gemmes et des coffres en remportant des matchs.</p></div>`}
+const awkCost=m=>m.hk?((m.stars||0)+1)*10:[3,6,10,15,20][Math.min(4,m.stars||0)];
 function awakenHtml(m,i){const st=m.stars||0,c=awkCost(m),have=m.hk?((S.shards||{})[m.hk]||0):(S.awk||0),res=m.hk?"éclats":"gemmes";
   return `<div class="card flat"><div class="card-h"><div class="kicker">Éveil</div><span class="stars5">${[1,2,3,4,5].map(k=>`<i class="${k<=st?"on":""}">★</i>`).join("")}</span></div>
     <p class="hint" style="margin:4px 0 8px">Chaque étoile : +4 % PV et attaque.${m.hk?" Les doublons de ce héros nommé donnent des éclats.":" Les gemmes se gagnent en match, en mission et dans les coffres."}</p>
@@ -4106,44 +4140,47 @@ function homeAlerts(){const A=[],F=fighters(S.team),it=(S.items||[]).length;
   const rk=S.market.find(m=>RKEYS.indexOf(m.rar)>=3);if(rk&&S.team.length<maxTeam())A.push(["gomarket","star",`Recrue ${RAR[rk.rar].label.toLowerCase()} au marché`,`${rk.name} · ${mprice(rk)} or`]);
   return A.slice(0,3)}
 const HIC={home:NAVIC.club,team:NAVIC.team,chest:'<path d="M3 10h18v10H3z"/><path d="M3 10a9 5 0 0 1 18 0M10 13h4v3h-4z"/>',book:'<path d="M3 5h6a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H3z"/><path d="M21 5h-6a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h7z"/>',star:'<path d="M12 3l2.6 5.6 6 .6-4.5 4 1.3 6L12 16.2 6.6 19.2l1.3-6-4.5-4 6-.6z"/>'};
-function homeHtml(){rivalize();bossify();const o=S.opps[S.day],F=fighters(S.team);guideTick();let h=tutoHtml("home")+begHtml();
+function homeHtml(){rivalize();bossify();const o=curOpp(),F=fighters(S.team);guideTick();let h=tutoHtml("home")+begHtml();
   const rows=[{name:CLUB,pts:S.pts,w:S.sw,me:1},...S.opps].sort((a,b)=>b.pts-a.pts||b.w-a.w),rank=rows.findIndex(r=>r.me)+1;
-  if(S.day<5&&o){const st=STYLES[o.style];
-    h+=`<div class="card hm-next"><div class="kicker">Division ${LDIV[divOf()].l} · journée ${S.day+1} sur 5</div>
+  if(S.day<NDAYS&&o){const st=STYLES[o.style];
+    h+=`<div class="card hm-next"><div class="kicker">Division ${LDIV[divOf()].l} · journée ${S.day+1} sur ${NDAYS}</div>
       <div class="vsb"><div class="vsc">${clubCrest()}<b>${CLUB}</b><em>Puissance ${teamPwr(S.team)}</em></div><div class="vsx">VS</div><div class="vsc">${o.boss?'<span class="obadge boss">BOSS</span>':o.rival?'<span class="obadge riv">RIVAL</span>':""}${crestSvg(oppCrest(o))}<b>${o.name}</b><em>${st.l} · ${teamPwr(o.team)}</em></div></div>
       <button class="arpill sm" data-a="arenainfo"><img src="${terrainMini(S.terrain||"colisee",S.arena)}" alt=""><span><b>${TERRAINS[S.terrain||"colisee"].l}</b><em>${ARENAS[S.arena].l}</em></span><span class="chev">›</span></button>
       ${o.boss?`<p class="evb boss">Boss de division : ${o.bossName||"un champion légendaire"} mène l'équipe. Victoire = une relique pour ton club.</p>`:o.rival&&S.rival?`<p class="evb riv">Ton rival ! Bilan : ${S.rival.w} V – ${S.rival.l} D. Victoire = +50 or.</p>`:""}${S.ev&&EVB[S.ev]?`<p class="evb" style="--ec:${EVB[S.ev].c}"><b>Événement : ${EVB[S.ev].l}</b> · ${EVB[S.ev].d}</p>`:""}<div class="odds" id="odds"></div>
       <div class="hm-acts"><button class="btn" data-a="goleague">Voir l'adversaire</button><button class="btn main" data-a="fight" ${F.length?"":"disabled"}>Jouer</button></div></div>`}
-  else{const bonus=Math.round(ECO.season[rank-1]*divPrize(divOf()));h+=`<div class="card hm-next"><div class="kicker">Saison ${S.season} terminée</div><div class="podium">${[1,0,2].map(k=>{const r=rows[k];if(!r)return "";return `<div class="pod p${k+1}${r.me?" me":""}">${r.me?clubCrest():crestSvg(oppCrest(r))}<b>${r.me?CLUB:r.name}</b><em>${r.pts} pts</em><div class="pblk"><span>${k+1}</span></div></div>`}).join("")}</div><div class="vs">${rank===1?"Champion !":"Classé "+rank+"e"}</div><p class="hint" style="margin:4px 0 12px">Prime de fin de saison : <b style="color:var(--gild-hi)">${bonus} or</b>${rank<=2&&divOf()>0?` · <b style="color:#7fe08f">promotion en division ${LDIV[divOf()-1].l}</b>`:rank>=6&&divOf()<5?` · <b style="color:#ff8b8b">relégation en division ${LDIV[divOf()+1].l}</b>`:""}</p><button class="btn main big" data-a="nextseason" data-b="${bonus}" data-r="${rank}">Lancer la saison ${S.season+1}</button></div>`}
+  else{const bonus=Math.round(ECO.season[rank-1]*divPrize(divOf()));h+=`<div class="card hm-next"><div class="kicker">Saison ${S.season} terminée</div><div class="podium">${[1,0,2].map(k=>{const r=rows[k];if(!r)return "";return `<div class="pod p${k+1}${r.me?" me":""}">${r.me?clubCrest():crestSvg(oppCrest(r))}<b>${r.me?CLUB:r.name}</b><em>${r.pts} pts</em><div class="pblk"><span>${k+1}</span></div></div>`}).join("")}</div><div class="vs">${rank===1?"Champion !":"Classé "+rank+"e"}</div>
+        <div class="tiles" style="margin-top:8px"><div class="tile"><b>${S.sw}-${S.sl}</b><span>victoires-défaites</span></div><div class="tile"><b>${S.pts}</b><span>points</span></div><div class="tile"><b>${(()=>{const e=Object.entries(S.smvp||{}).sort((a,b)=>b[1]-a[1])[0];const m=e&&S.team.find(x=>String(x.id)===String(e[0]));return m?fn(m):"–"})()}</b><span>meilleur joueur</span></div></div><p class="hint" style="margin:4px 0 12px">Prime de fin de saison : <b style="color:var(--gild-hi)">${bonus} or</b>${rank<=2&&divOf()>0?` · <b style="color:#7fe08f">promotion en division ${LDIV[divOf()-1].l}</b>`:rank>=6&&divOf()<5?` · <b style="color:#ff8b8b">relégation en division ${LDIV[divOf()+1].l}</b>`:""}</p><button class="btn main big" data-a="nextseason" data-b="${bonus}" data-r="${rank}">Lancer la saison ${S.season+1}</button></div>`}
   h+=todayHtml();
   const form=(S.form||[]).filter(x=>x.s===S.season).slice(-5);
   h+=`<div class="card"><div class="card-h"><h3 class="h3g">Ta saison</h3><button class="lnk" data-a="goleague">Classement ›</button></div>
-    <div class="tiles"><div class="tile"><b>${rank}<small>${rank===1?"er":"e"}</small></b><span>sur 6</span></div><div class="tile"><b>${S.pts}</b><span>points</span></div><div class="tile"><div class="fchips">${form.length?form.map(x=>`<i class="${x.w?"w":"l"}">${x.w?"V":"D"}</i>`).join(""):"<em>–</em>"}</div><span>forme</span></div></div>
-    <div class="obj"><div><b>Objectif : finir 1er</b><em>Prime de champion ${ECO.season[0]} or · journée ${Math.min(S.day+1,5)}/5</em></div><div class="meter"><b style="width:${Math.min(100,S.day/5*100)}%"></b></div></div></div>`;
+    <div class="tiles"><div class="tile"><b>${rank}<small>${rank===1?"er":"e"}</small></b><span>sur ${NCLUBS}</span></div><div class="tile"><b>${S.pts}</b><span>points</span></div><div class="tile"><div class="fchips">${form.length?form.map(x=>`<i class="${x.w?"w":"l"}">${x.w?"V":"D"}</i>`).join(""):"<em>–</em>"}</div><span>forme</span></div></div>
+    <div class="obj"><div><b>Objectif : top 2 (montée)</b><em>Prime de champion ${ECO.season[0]} or · journée ${Math.min(S.day+1,NDAYS)}/${NDAYS}</em></div><div class="meter"><b style="width:${Math.min(100,S.day/NDAYS*100)}%"></b></div></div></div>`;
+  {const nA=new Set([...(S.seen||[]),...S.team.filter(m=>m.hk).map(m=>m.hk)]).size;if(Math.floor(nA/10)>(S.albc||0))h+=`<div class="card guide"><div class="card-h"><h3 class="h3g">Album des héros</h3><span class="badge">${nA}/${HEROES.length}</span></div><p class="hint" style="margin:0 0 8px">Nouveau palier de collection atteint : 3 gemmes à récupérer.</p><button class="btn main big" data-a="albclaim">Récupérer 3 gemmes</button></div>`}
+  {const k=S.season*100+S.day,last=S.expK==null?-999:S.expK;if((S.season>1||S.day>=6)&&k-last>=9&&!(S.season===1&&S.expK==null&&S.day<6))h+=`<div class="card flat"><div class="card-h"><h3 class="h3g">Sauvegarde</h3></div><p class="hint" style="margin:0 0 8px">Ta partie est enregistrée sur cet appareil seulement. Si tu désinstalles l'appli ou changes de téléphone, elle est perdue : exporte-la de temps en temps (un simple texte à garder).</p><div class="row" style="gap:8px"><button class="btn main" style="flex:1" data-a="exp">Exporter</button><button class="btn" style="flex:1" data-a="expskip">Plus tard</button></div></div>`}
   return h}
 
 /* ================= CLUB : BÂTIMENTS & PERSONNEL (phase 9) ================= */
 const BLD={
-  siege:{l:"Siège",s:"Plus de places dans l'effectif",max:4,c:[150,350,700,1200],ic:'<path d="M4 21V9l8-5 8 5v12"/><path d="M9 21v-6h6v6M4 21h16"/>',d:l=>`Effectif max ${7+l}`},
-  maison:{l:"Maison du club",s:"Loge le personnel",max:3,c:[100,300,650],ic:'<path d="M3 12l9-7 9 7"/><path d="M6 10v10h12V10M10 20v-5h4v5"/>',d:l=>l?`${l} poste${l>1?"s":""} de personnel`:"Aucun personnel"},
-  infirm:{l:"Infirmerie",s:"Moins de blessures, soins moins chers",max:3,c:[120,300,650],ic:'<path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6z"/>',d:l=>`Blessure ${Math.round(injBase(l)*100)} % par K.O. · soin ${healCostL(l)} or`},
-  caserne:{l:"Caserne",s:"Les remplaçants s'entraînent",max:3,c:[150,380,800],ic:'<path d="M14.5 3.5l6 6-11 11-6-6z"/><path d="M4 20l3-3"/>',d:l=>`Remplaçants : ${25+l*20} % de l'XP des titulaires`},
-  academie:{l:"Académie",s:"Plus d'XP pour tous",max:3,c:[200,450,900],ic:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/>',d:l=>`+${l*5} % d'XP par combat`},
-  recru:{l:"Bureau de recrutement",s:"Meilleures recrues, classe ciblée",max:3,c:[180,420,850],ic:'<circle cx="10" cy="10" r="6"/><path d="M14.5 14.5L20 20"/>',d:l=>`${6+l} recrues · chance de rareté +${l}${l?" · classe ciblée":""}`},
-  tresor:{l:"Coffre aux trésors",s:"Plus d'or à chaque match",max:3,c:[200,500,1000],ic:'<path d="M3 10h18v10H3z"/><path d="M3 10a9 5 0 0 1 18 0M10 13h4v3h-4z"/>',d:l=>`+${l*8} % d'or par match`},
-  forge:{l:"Forge",s:"Améliorations moins chères",max:3,c:[150,350,750],ic:'<path d="M4 15h12l4-4H8M7 15v5h8v-5M12 4v4"/>',d:l=>`Améliorations −${l*10} % · démontage +${l*25} %`}};
+  siege:{l:"Siège",s:"Plus de places dans l'effectif",max:4,c:[375,875,1750,3000],ic:'<path d="M4 21V9l8-5 8 5v12"/><path d="M9 21v-6h6v6M4 21h16"/>',d:l=>`Effectif max ${7+l}`},
+  maison:{l:"Maison du club",s:"Loge le personnel",max:3,c:[250,750,1625],ic:'<path d="M3 12l9-7 9 7"/><path d="M6 10v10h12V10M10 20v-5h4v5"/>',d:l=>l?`${l} poste${l>1?"s":""} de personnel`:"Aucun personnel"},
+  infirm:{l:"Infirmerie",s:"Moins de blessures, soins moins chers",max:3,c:[300,750,1625],ic:'<path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6z"/>',d:l=>`Blessure ${Math.round(injBase(l)*100)} % par K.O. · soin ${healCostL(l)} or`},
+  caserne:{l:"Caserne",s:"Les remplaçants s'entraînent",max:3,c:[375,950,2000],ic:'<path d="M14.5 3.5l6 6-11 11-6-6z"/><path d="M4 20l3-3"/>',d:l=>`Remplaçants : ${25+l*20} % de l'XP des titulaires`},
+  academie:{l:"Académie",s:"Plus d'XP pour tous",max:3,c:[500,1125,2250],ic:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/>',d:l=>`+${l*5} % d'XP par combat`},
+  recru:{l:"Bureau de recrutement",s:"Meilleures recrues, classe ciblée",max:5,c:[300,800,1800,3500,6000],ic:'<circle cx="10" cy="10" r="6"/><path d="M14.5 14.5L20 20"/>',d:l=>`${6+Math.min(3,l)} recrues · épiques et mieux +${30*l} %${l>=2?" · héros nommés dès le Fer":""}${l>=3?" · mythiques débloqués":""}${l>=5?" · divins débloqués":""}${l?" · classe ciblée":""}`},
+  tresor:{l:"Coffre aux trésors",s:"Plus d'or à chaque match",max:3,c:[500,1250,2500],ic:'<path d="M3 10h18v10H3z"/><path d="M3 10a9 5 0 0 1 18 0M10 13h4v3h-4z"/>',d:l=>`+${l*8} % d'or par match`},
+  forge:{l:"Forge",s:"Améliorations moins chères",max:3,c:[375,875,1875],ic:'<path d="M4 15h12l4-4H8M7 15v5h8v-5M12 4v4"/>',d:l=>`Améliorations −${l*10} % · démontage +${l*25} %`}};
 const BKEYS=Object.keys(BLD);
 const STAFF={
-  entraineur:{l:"Entraîneur",d:"+10 % d'XP pour tout l'effectif",c:150},
-  medecin:{l:"Médecin",d:"Risque de blessure ÷2, jamais plus d'un match d'absence",c:150},
-  depisteur:{l:"Dépisteur",d:"+1 recrue et 1 renouvellement gratuit du marché par journée",c:180},
-  intendant:{l:"Intendant",d:"+5 % d'or par match et bâtiments −10 %",c:200}};
+  entraineur:{l:"Entraîneur",d:"+10 % d'XP pour tout l'effectif",c:375},
+  medecin:{l:"Médecin",d:"Risque de blessure ÷2, jamais plus d'un match d'absence",c:375},
+  depisteur:{l:"Dépisteur",d:"+1 recrue et 1 renouvellement gratuit du marché par journée",c:450},
+  intendant:{l:"Intendant",d:"+5 % d'or par match et bâtiments −10 %",c:500}};
 function bl(k){return ((S&&S.bld)||{})[k]||0}
 function hasStaff(k){return ((S&&S.staff)||[]).includes(k)}
 function maxTeam(){return MAX_TEAM0+bl("siege")}
 function bldCost(k){const l=bl(k);return Math.round(BLD[k].c[l]*(hasStaff("intendant")?.9:1))}
 function xpMul(){return 1+((S.relics||[]).includes("sablier")?.08:0)+.05*bl("academie")+(hasStaff("entraineur")?.1:0)+((SRULES[S.rule]||{}).x||0)}
-function goldMul(){return 1+((S.relics||[]).includes("bourse")?.08:0)+(S.diff==="difficile"?.2:S.diff==="facile"?-.1:0)+.08*bl("tresor")+(hasStaff("intendant")?.05:0)+((SRULES[S.rule]||{}).g||0)}
+function goldMul(){return 1+((S.relics||[]).includes("bourse")?.08:0)+(S.diff==="difficile"?-.15:S.diff==="facile"?.25:0)+.08*bl("tresor")+(hasStaff("intendant")?.05:0)+((SRULES[S.rule]||{}).g||0)}
 function injBase(l){return .15-.04*l}
 function injChance(){return injBase(bl("infirm"))*(hasStaff("medecin")?.5:1)}
 function healCostL(l){return 40-10*l}
@@ -4185,11 +4222,11 @@ function cupHtml(){const c=S.cup||newCup(),av=cupAvail();
 
 /* ================= MODES DE JEU (phase 12) ================= */
 const MODES={
-  gate:{l:"Porte de fer",d:"Enchaîne les étages contre des adversaires de plus en plus forts. Une tentative par journée. Or à chaque étage, gemmes et coffres aux paliers.",ic:'<path d="M5 21V8a7 7 0 0 1 14 0v13M5 21h14M9 21v-8h6v8M12 13v8"/>'},
-  draft:{l:"Draft",d:"Choisis 5 héros parmi des tirages au sort, puis dispute 3 matchs avec cette équipe d'un jour. Ton effectif n'est pas touché.",ic:'<path d="M4 6h10v14H4zM8 3h12v14"/>'},
+  gate:{l:"Porte de fer",d:"Enchaîne les étages contre des adversaires de plus en plus forts. Une tentative toutes les 3 journées. Or à chaque étage, gemmes et coffres aux paliers.",ic:'<path d="M5 21V8a7 7 0 0 1 14 0v13M5 21h14M9 21v-8h6v8M12 13v8"/>'},
+  draft:{l:"Draft",d:"8 équipes se partagent un réservoir de héros, choisis chacun son tour (ordre en serpent), en format 2 à 5 joueurs. Puis tableau : quarts, demies, finale. Ton effectif n'est pas touché.",ic:'<path d="M4 6h10v14H4zM8 3h12v14"/>'},
   ghost:{l:"Défi fantôme",d:"Affronte ton équipe de la saison passée, telle qu'elle était. Une fois par saison.",ic:'<path d="M6 20V10a6 6 0 0 1 12 0v10l-2-2-2 2-2-2-2 2-2-2z"/><circle cx="10" cy="10" r="1"/><circle cx="14" cy="10" r="1"/>'},
-  acad:{l:"Match d'académie",d:"Tes remplaçants jouent un match amical et gagnent de l'XP. Une fois par journée.",ic:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/>'}};
-const dayKey=()=>S.season*10+S.day;
+  acad:{l:"Match d'académie",d:"Tes remplaçants jouent un match amical et gagnent de l'XP. Une fois toutes les 3 journées.",ic:'<path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2 9 2 12 0v-5"/>'}};
+const dayKey=()=>S.season*100+Math.floor(S.day/3);
 function modeStyle(){return pick(LEADERS).style}
 function modeOpp(name,lv){return makeOpp({club:name,leader:pick(["Le Gardien","La Sentinelle","Maître d'armes","Le Geôlier"]),style:modeStyle()},Math.max(1,lv))}
 function runMode(k,A,opp,cap,extra){const cp=x=>x?JSON.parse(JSON.stringify(x)):null;
@@ -4199,22 +4236,56 @@ function runMode(k,A,opp,cap,extra){const cp=x=>x?JSON.parse(JSON.stringify(x)):
 function gateState(){S.gate=S.gate||{day:-1,f:0,best:0,on:false};return S.gate}
 function gateGold(f){return 20+12*f}
 function startGate(){const G=gateState();if(!fighters(S.team).length)return;if(!G.on){if(G.day===dayKey())return;G.day=dayKey();G.on=true;G.f=0}
-  const f=G.f+1,o=modeOpp("Étage "+f,S.season+divAdj(divOf())+Math.floor((f-2)/2));runMode("gate",S.team,o,S.captain,{f})}
+  const f=G.f+1,o=modeOpp("Étage "+f,divLv()-1+Math.floor((f-1)/2));runMode("gate",S.team,o,S.captain,{f})}
 function gateResult(win,f){const G=gateState();let msg;
   if(win){G.f=f;G.best=Math.max(G.best,f);const g=Math.round(gateGold(f)*goldMul());S.gold+=g;msg=`Étage ${f} franchi : +${g} or`;
     if(f%3===0){S.keys=(S.keys||0)+1;msg+=" et 1 gemme"}if(f===5||f===10||f===15){const k=f===5?"bronze":f===10?"argent":"or";S.chests=S.chests||{};S.chests[k]=(S.chests[k]||0)+1;msg+=` · ${CHESTS[k].l}`}}
   else{G.on=false;msg=`Porte de fer : arrêt à l'étage ${G.f} (record ${G.best})`}
   return msg}
-/* Draft */
+/* Draft · V29 : 8 équipes, format 2 à 5 joueurs, choix en serpent, tableau quarts / demies / finale */
 function draftLv(){const L=S.team.map(m=>m.lvl).sort((a,b)=>b-a).slice(0,5);return Math.max(1,Math.round(L.reduce((a,b)=>a+b,0)/(L.length||1)))}
-function draftChoices(){const lv=draftLv();return [0,1,2].map(()=>{const m=makeMerc(lv,null,null,(S.season||1)+5);m.rules=defRules();ensureSkills(m);return m})}
-function startDraft(){if(S.draft)return;const c=60;if(!S.test){if(S.gold<c){toast("Il faut 60 or");return}S.gold-=c}S.draft={picks:[],ch:draftChoices(),fights:0,wins:0};save();header();openPlain(draftHtml())}
-function draftPick(j){const D_=S.draft;if(!D_||D_.picks.length>=5)return;D_.picks.push(D_.ch[j]);D_.ch=D_.picks.length<5?draftChoices():[];if(D_.picks.length===5){formation5(D_.picks);D_.cap=D_.picks.slice().sort((a,b)=>pwr(b)-pwr(a))[0].id}save();openPlain(draftHtml())}
-function draftFight(){const D_=S.draft;if(!D_||D_.picks.length<5||D_.fights>=3)return;const o=modeOpp(["Les Inconnus","Les Errants","Les Masques"][D_.fights],S.season+divAdj(divOf())+D_.fights);runMode("draft",D_.picks,o,D_.cap)}
-const DRAFTRW=[[20,0,null],[80,0,null],[160,1,null],[300,1,"bronze"]];
-function draftResult(win){const D_=S.draft;D_.fights++;if(win)D_.wins++;if(D_.fights<3)return `Draft : ${D_.wins} victoire${D_.wins>1?"s":""} sur ${D_.fights}`;
-  const [g,k,ch]=DRAFTRW[D_.wins];S.gold+=g;S.keys=(S.keys||0)+k;if(ch){S.chests=S.chests||{};S.chests[ch]=(S.chests[ch]||0)+1}S.draftBest=Math.max(S.draftBest||0,D_.wins);S.draft=null;
-  return `Draft terminé : ${D_.wins}/3 · +${g} or${k?` · ${k} gemme`:""}${ch?` · ${CHESTS[ch].l}`:""}`}
+const DRW=[[20,0,null],[60,0,null],[150,1,null],[300,2,"bronze"]];
+const DRR=["Quarts de finale","Demi-finales","Finale"];
+let draftF="all";
+function draftPoolGen(n){const lv=draftLv(),N=8*n,K=Object.keys(CLASSES),cls=[];while(cls.length<N)cls.push(...[...K].sort(()=>Math.random()-.5));
+  const W=[30,28,24,13,4.5,.5,0];return cls.slice(0,N).map(c=>{let x=Math.random()*100,r="commun";for(let i=0;i<W.length;i++){if((x-=W[i])<0){r=RKEYS[i];break}}const m=makeMerc(lv,c,r,stage());m.rules=defRules();ensureSkills(m);m.dp=-1;return m})}
+function startDraft(n){if(S.draft)return;n=Math.max(2,Math.min(5,+n||5));const c=60;if(!S.test){if(S.gold<c){toast("Il faut 60 or");return}S.gold-=c}
+  const names=[...CUPCLUBS,...CLUBX].sort(()=>Math.random()-.5).slice(0,8),me=ri(0,7);names[me]=CLUB;const order=[];for(let r=0;r<n;r++){const o=[0,1,2,3,4,5,6,7];order.push(...(r%2?o.reverse():o))}
+  S.draft={v:2,n,pool:draftPoolGen(n),me,names,order,pk:0,log:[],phase:"pick",alive:[0,1,2,3,4,5,6,7],r:0,wins:0};draftAuto();save();header();openPlain(draftHtml())}
+function draftTeam(t){const D_=S.draft;return D_.pool.filter(m=>m.dp===t)}
+function draftAiPick(t){const D_=S.draft,mine=draftTeam(t),has=k=>mine.some(m=>ROLEG[m.cls]===k),free=D_.pool.filter(m=>m.dp<0);
+  const sc=m=>pwr(m)*(ROLEG[m.cls]==="tank"&&!has("tank")?1.3:1)*(ROLEG[m.cls]==="soin"&&!has("soin")&&D_.n>=3?1.25:1)*(mine.some(x=>x.cls===m.cls)?.85:1)*(.9+Math.random()*.2);
+  return free.sort((a,b)=>sc(b)-sc(a))[0]}
+function draftAuto(){const D_=S.draft;while(D_.pk<D_.order.length&&D_.order[D_.pk]!==D_.me){const t=D_.order[D_.pk],m=draftAiPick(t);if(!m)break;m.dp=t;D_.log.push([t,m.id]);D_.pk++}
+  if(D_.pk>=D_.order.length)draftEndPicks()}
+function draftPick(j){const D_=S.draft;if(!D_||D_.phase!=="pick"||D_.order[D_.pk]!==D_.me)return;const m=D_.pool[j];if(!m||m.dp>=0)return;m.dp=D_.me;D_.log.push([D_.me,m.id]);D_.pk++;draftAuto();save();openPlain(draftHtml())}
+function draftEndPicks(){const D_=S.draft;D_.phase="bracket";for(let t=0;t<8;t++){const T=draftTeam(t);formation5(T);if(t!==D_.me)T.forEach(m=>m.rules=styleRules(m,pick(Object.keys(STYLES))))}D_.cap=draftTeam(D_.me).slice().sort((a,b)=>pwr(b)-pwr(a))[0].id}
+function draftPair(){const D_=S.draft,A=D_.alive,i=A.indexOf(D_.me);return i<0?null:A[i%2?i-1:i+1]}
+function draftFight(){const D_=S.draft;if(!D_||D_.phase!=="bracket")return;const o=draftPair();if(o==null)return;const T=draftTeam(o);
+  const opp={name:D_.names[o],team:JSON.parse(JSON.stringify(T)),captain:(T.slice().sort((a,b)=>pwr(b)-pwr(a))[0]||{}).id};runMode("draft",draftTeam(D_.me),opp,D_.cap)}
+function draftResult(win){const D_=S.draft;if(!D_)return "";const A=D_.alive,next=[];
+  for(let i=0;i<A.length;i+=2){const x=A[i],y=A[i+1];let w;if(x===D_.me||y===D_.me)w=win?D_.me:(x===D_.me?y:x);else{const px=power(draftTeam(x)),py=power(draftTeam(y));w=Math.random()<px/(px+py)?x:y}next.push(w)}
+  D_.alive=next;if(win)D_.wins++;D_.r++;
+  if(win&&next.length>1)return `Draft : ${DRR[D_.r-1].toLowerCase()} gagnée, place à la ${DRR[D_.r].toLowerCase().replace(/s$/,"")}`;
+  const [g,k,ch]=DRW[D_.wins];S.gold+=g;S.keys=(S.keys||0)+k;if(ch){S.chests=S.chests||{};S.chests[ch]=(S.chests[ch]||0)+1}S.draftBest=Math.max(S.draftBest||0,D_.wins);S.draft=null;
+  return `Draft ${D_.wins===3?"remportée !":"terminée"} · +${g} or${k?` · ${k} gemme${k>1?"s":""}`:""}${ch?` · ${CHESTS[ch].l}`:""}`}
+function draftCard(m,j,can){return `<div class="dcard${m.dp>=0?" taken":""}" style="--rc:var(--r-${m.rar})"><button class="dpor" data-a="info" data-l="dpool" data-i="${j}" aria-label="Voir ${m.name}"><img src="${portrait(m,64)}" alt=""></button><b>${fn(m)}</b><em>${CLASSES[m.cls].label} · ${RAR[m.rar].label}</em><span class="dpw">Puiss. ${pwr(m)}</span>${m.dp>=0?`<span class="dtk">${m.dp===S.draft.me?"Toi":S.draft.names[m.dp].split(" ").slice(-1)[0]}</span>`:can?`<button class="btn sm main" data-a="dpick" data-j="${j}">Choisir</button>`:""}</div>`}
+function draftHtml(){const D_=S.draft;
+  if(D_&&!D_.v)S.draft=null;
+  if(!S.draft)return `<h2>Draft</h2><p class="hint">${MODES.draft.d}</p><div class="gl"><div>Éliminé en quart : 20 or</div><div>Éliminé en demie : 60 or</div><div>Finaliste : 150 or et 1 gemme</div><div>Vainqueur : 300 or, 2 gemmes et un coffre de bronze</div></div>${S.draftBest!=null?`<p class="hint">Meilleur résultat : ${["quart","demie","finale","victoire"][S.draftBest]||"quart"}</p>`:""}
+    <div class="cf-l" style="margin-top:10px">Format (entrée 60 or)</div><div class="seg">${[2,3,4,5].map(n=>`<button data-a="draftgo" data-n="${n}" ${!S.test&&S.gold<60?"disabled":""}>${n} contre ${n}</button>`).join("")}</div>`;
+  if(D_.phase==="pick"){const my=draftTeam(D_.me),turn=D_.order[D_.pk]===D_.me,round=Math.floor(D_.pk/8)+1,cls=[...new Set(D_.pool.map(m=>m.cls))];
+    const last=D_.log.slice(-7).filter(x=>x[0]!==D_.me).map(([t,id])=>{const m=D_.pool.find(z=>z.id===id);return `<span class="tg">${D_.names[t].split(" ").slice(-1)[0]} : ${fn(m)}</span>`}).join("");
+    const list=D_.pool.map((m,j)=>[m,j]).filter(([m])=>(draftF==="all"||m.cls===draftF)&&(draftF!=="all"||true)).sort((a,b)=>(a[0].dp>=0)-(b[0].dp>=0)||pwr(b[0])-pwr(a[0]));
+    return `<h2>Draft · ${D_.n} contre ${D_.n}</h2><p class="hint" style="margin:0 0 6px">Tour ${round}/${D_.n} · tu choisis en position ${D_.me+1} (ordre en serpent). ${turn?"<b style=\"color:var(--gild-hi)\">À toi de choisir !</b>":""}</p>
+      <div class="dmine"><b>Ton équipe ${my.length}/${D_.n}</b>${my.map(m=>`<span class="tg" style="border-color:var(--r-${m.rar})">${fn(m)} · ${CLASSES[m.cls].label}</span>`).join("")||'<span class="muted">vide</span>'}</div>
+      ${last?`<div class="dlog">${last}</div>`:""}
+      <div class="chipsrow">${[["all","Tous"],...cls.map(c=>[c,CLASSES[c].label])].map(([k,l])=>`<button class="fchip${draftF===k?" on":""}" data-a="dfilt" data-k="${k}">${l}</button>`).join("")}</div>
+      <div class="dgrid">${list.map(([m,j])=>draftCard(m,j,turn)).join("")}</div>`}
+  const opp=draftPair(),my=draftTeam(D_.me),rn=DRR[D_.r]||"Finale",bk=D_.alive.map(t=>`<span class="tg${t===D_.me?" good":""}">${D_.names[t]}</span>`).join(" ");
+  return `<h2>Draft · ${rn}</h2><p class="hint">Encore en lice : ${bk}</p><div class="dmine"><b>Ton équipe</b>${my.map(m=>`<span class="tg" style="border-color:var(--r-${m.rar})">${fn(m)} · ${CLASSES[m.cls].label} · niv ${m.lvl}</span>`).join("")}</div>
+    <div class="dmine"><b>Adversaire : ${D_.names[opp]}</b>${draftTeam(opp).map(m=>`<span class="tg" style="border-color:var(--r-${m.rar})">${fn(m)} · ${CLASSES[m.cls].label}</span>`).join("")}</div>
+    <button class="btn main big" data-a="draftfight">Jouer la ${rn.toLowerCase().replace(/s$/,"").replace("quart de finale","quart").replace("quarts de finale","quart")}</button>`}
 /* Défi fantôme */
 function ghostSnap(){const F=fighters(S.team);if(F.length<3)return;S.ghost={s:S.season,cap:S.captain,team:JSON.parse(JSON.stringify(F))}}
 function startGhost(){const G=S.ghost;if(!G||S.ghostDone===S.season||!fighters(S.team).length)return;const o={name:`${CLUB} (saison ${G.s})`,team:JSON.parse(JSON.stringify(G.team)),captain:G.cap};runMode("ghost",S.team,o,S.captain)}
@@ -4230,12 +4301,9 @@ function applyMode(F,win){const k=F.mode.k;progAdd(15,40);stc("modes");misEv("mo
 function gateHtml(){const G=gateState(),used=G.day===dayKey()&&!G.on;return `<h2>Porte de fer</h2><p class="hint">${MODES.gate.d}</p><div class="tiles"><div class="tile"><b>${G.on?G.f:0}</b><span>étage actuel</span></div><div class="tile"><b>${G.best}</b><span>record</span></div><div class="tile"><b>${gateGold((G.on?G.f:0)+1)}</b><span>or au prochain</span></div></div>
   <p class="hint" style="margin:10px 0">Paliers : 1 gemme tous les 3 étages · coffre de bronze à l'étage 5, d'argent au 10, d'or au 15.</p>
   ${used?`<p class="hint">Tentative du jour utilisée. Reviens après le prochain match de ligue.</p>`:`<button class="btn main big" data-a="gatego" ${fighters(S.team).length?"":"disabled"}>${G.on?`Étage ${G.f+1}`:"Entrer (gratuit)"}</button>`}`}
-function draftHtml(){const D_=S.draft;if(!D_)return `<h2>Draft</h2><p class="hint">${MODES.draft.d}</p><div class="gl"><div>0 victoire : 20 or</div><div>1 victoire : 80 or</div><div>2 victoires : 160 or et 1 gemme</div><div>3 victoires : 300 or, 1 gemme et un coffre de bronze</div></div>${S.draftBest!=null?`<p class="hint">Meilleur résultat : ${S.draftBest}/3</p>`:""}<button class="btn main big" data-a="draftgo" ${!S.test&&S.gold<60?"disabled":""}>Commencer · 60 or</button>`;
-  if(D_.picks.length<5)return `<h2>Draft · choix ${D_.picks.length+1}/5</h2><p class="hint">Choisis un héros. Équipe : ${D_.picks.map(m=>fn(m)+" ("+CLASSES[m.cls].label.toLowerCase()+")").join(", ")||"vide"}.</p><div class="list">${D_.ch.map((m,j)=>mercCard(m,"draft",j,`<button class="btn main" data-a="dpick" data-j="${j}">Choisir</button>`)).join("")}</div>`;
-  return `<h2>Draft · ${D_.wins}/${D_.fights} victoires</h2><p class="hint">Ton équipe d'un jour, placée automatiquement. Match ${D_.fights+1} sur 3.</p><div class="list">${D_.picks.map((m,j)=>mercCard(m,"draftt",j,"")).join("")}</div><button class="btn main big" data-a="draftfight">Jouer le match ${D_.fights+1}</button>`}
 function ghostHtml(){const G=S.ghost,done=S.ghostDone===S.season;return `<h2>Défi fantôme</h2><p class="hint">${MODES.ghost.d} Victoire : 100 or et 1 gemme.</p>${G?`<p class="hint">Fantôme : ton équipe de la saison ${G.s} (${G.team.map(m=>fn(m)).join(", ")}), puissance ${G.team.reduce((a,m)=>a+pwr(m),0)}.</p>${done?`<p class="hint">Déjà joué cette saison.</p>`:`<button class="btn main big" data-a="ghostgo" ${fighters(S.team).length?"":"disabled"}>Affronter mon fantôme</button>`}`:`<p class="hint">Termine une saison pour créer ton premier fantôme.</p>`}`}
 function acadHtml(){const B=acadTeam(),done=S.acadDay===dayKey();return `<h2>Match d'académie</h2><p class="hint">${MODES.acad.d}</p>${B.length?`<p class="hint">Remplaçants appelés : ${B.map(fn).join(", ")}.</p>${done?`<p class="hint">Déjà joué aujourd'hui.</p>`:`<button class="btn main big" data-a="acadgo">Lancer le match amical</button>`}`:`<p class="hint">Aucun remplaçant disponible. Recrute au-delà de 5 combattants.</p>`}`}
-function modesHtml(){const G=gateState();const st={gate:G.on?`En cours · étage ${G.f}`:G.day===dayKey()?"Fait aujourd'hui":`Record ${G.best}`,draft:S.draft?(S.draft.picks.length<5?"Choix en cours":`${S.draft.wins}/${S.draft.fights} victoires`):"60 or",ghost:!S.ghost?"Après la saison 1":S.ghostDone===S.season?"Fait cette saison":"Disponible",acad:S.acadDay===dayKey()?"Fait aujourd'hui":acadTeam().length?"Disponible":"Pas de remplaçant"};
+function modesHtml(){const G=gateState();const st={gate:G.on?`En cours · étage ${G.f}`:G.day===dayKey()?"Fait · revient bientôt":`Record ${G.best}`,draft:S.draft&&S.draft.v?(S.draft.phase==="pick"?"Choix en cours":`${(DRR[S.draft.r]||"Finale").replace(/s$/,"")} à jouer`):"60 or",ghost:!S.ghost?"Après la saison 1":S.ghostDone===S.season?"Fait cette saison":"Disponible",acad:S.acadDay===dayKey()?"Fait · revient bientôt":acadTeam().length?"Disponible":"Pas de remplaçant"};
   return `<div class="section"><div class="card-h"><h2>Autres modes</h2></div><div class="modeg">${Object.keys(MODES).filter(k=>k!=="acad").map(k=>`<button class="mode" data-a="mode" data-k="${k}"><svg viewBox="0 0 24 24">${MODES[k].ic}</svg><b>${MODES[k].l}</b><em>${st[k]}</em></button>`).join("")}</div></div>`}
 /* Salle des légendes */
 function toHall(m){if(!m)return;const c=m.car||{};if(!(m.lvl>=8||(c.f||0)>=15||(m.titles||[]).length))return;S.hall=(S.hall||[]).concat([Object.assign(JSON.parse(JSON.stringify(m)),{left:S.season,slot:null,inj:0})]).slice(-24)}
@@ -4306,21 +4374,21 @@ function cxpNeed(n){return 60*n}
 function clubLvl(){if(S.cxp==null)S.cxp=stv("fights")*30+stv("wins")*10;let l=1,x=S.cxp;while(l<20&&x>=cxpNeed(l)){x-=cxpNeed(l);l++}return l}
 function clubXpIn(){let l=1,x=S.cxp||0;while(l<20&&x>=cxpNeed(l)){x-=cxpNeed(l);l++}return [x,l<20?cxpNeed(l):1]}
 const CUNL={2:"Club rival",3:"Boss de division et reliques",4:"Événements d'arène",6:"Gemmes de palier doublées",10:"Titre « Club illustre »"};
-function passTier(){const P=passSt();return Math.min(20,Math.floor(P.xp/50))}
+function passTier(){const P=passSt();return Math.min(20,Math.floor(P.xp/100))}
 function passSt(){if(!S.pass||S.pass.s!==S.season)S.pass={s:S.season,xp:0,cl:[]};return S.pass}
-const passR=t=>t%5===0?{ch:t===20?"divin":t===15?"argent":t===10?"or":"bronze"}:t%3===0?{gem:2}:t%2===0?{frag:5}:{gold:40+10*t};
+const passR=t=>t%5===0?{ch:t===20?"or":t>=10?"argent":"bronze"}:t%3===0?{gem:2}:t%2===0?{frag:5}:{gold:40+10*t};
 const passRL=r=>r.ch?CHESTS[r.ch].l:r.gem?`${r.gem} gemmes`:r.frag?`${r.frag} éclats`:`${r.gold} or`;
 function progAdd(cx,px){const l0=clubLvl();S.cxp=(S.cxp||0)+cx;const P=passSt(),t0=passTier();P.xp+=px;const l1=clubLvl();
-  if(l1>l0)for(let l=l0+1;l<=l1;l++){const g=100*l,gm=l%2===0?(l>=6?4:2):0;S.gold+=g;S.gem=(S.gem||0)+gm;setTimeout((L=>()=>{toast(`Club niveau ${L} ! +${100*L} or${gm?` et ${gm} gemmes`:""}${CUNL[L]?" · débloqué : "+CUNL[L]:""}`);uiSfx&&uiSfx("ach")})(l),4200)}
+  if(l1>l0)for(let l=l0+1;l<=l1;l++){const g=30*l,gm=l%2===0?(l>=6?3:2):0;S.gold+=g;S.gem=(S.gem||0)+gm;setTimeout((L=>()=>{toast(`Club niveau ${L} ! +${30*L} or${gm?` et ${gm} gemmes`:""}${CUNL[L]?" · débloqué : "+CUNL[L]:""}`);uiSfx&&uiSfx("ach")})(l),4200)}
   if(passTier()>t0)setTimeout(()=>toast(`Passe de saison : palier ${passTier()} atteint`),3000)}
 function passClaim(t){const P=passSt();if(t>passTier()||P.cl.includes(t))return;P.cl.push(t);const r=passR(t);if(r.ch){S.chests=S.chests||{};S.chests[r.ch]=(S.chests[r.ch]||0)+1}if(r.gem)S.gem=(S.gem||0)+r.gem;if(r.frag)S.frag=(S.frag||0)+r.frag;if(r.gold)S.gold+=r.gold}
-function passHtml(){const P=passSt(),T=passTier(),av=[];for(let t=1;t<=T;t++)if(!P.cl.includes(t))av.push(t);const nx=Math.min(20,T+1),inT=P.xp-T*50;
-  return `<div class="card pass"><div class="card-h"><h2>Passe de saison</h2><span class="badge">${T}/20</span></div><div class="meter" style="margin:2px 0 6px"><b style="width:${T>=20?100:Math.round(inT/50*100)}%"></b></div>
-  <p class="hint" style="margin:0 0 8px">${T>=20?"Passe terminé : bravo !":`Palier ${nx} : ${inT}/50 points. Victoire 100, défaite 50, coupe 60, autre mode 40, mission 30.`} Gratuit, remis à zéro chaque saison.</p>
+function passHtml(){const P=passSt(),T=passTier(),av=[];for(let t=1;t<=T;t++)if(!P.cl.includes(t))av.push(t);const nx=Math.min(20,T+1),inT=P.xp-T*100;
+  return `<div class="card pass"><div class="card-h"><h2>Passe de saison</h2><span class="badge">${T}/20</span></div><div class="meter" style="margin:2px 0 6px"><b style="width:${T>=20?100:Math.round(inT/100*100)}%"></b></div>
+  <p class="hint" style="margin:0 0 8px">${T>=20?"Passe terminé : bravo !":`Palier ${nx} : ${inT}/100 points. Victoire 100, défaite 50, coupe 60, autre mode 40, mission 30.`} Gratuit, remis à zéro chaque saison.</p>
   <div class="ptiers">${Array.from({length:20},(_,k)=>{const t=k+1,r=passR(t),ok=P.cl.includes(t),can=t<=T&&!ok;return `<button class="ptier${ok?" ok":can?" can":""}${r.ch?" big":""}" ${can?`data-a="pclaim" data-t="${t}"`:"disabled"}><i>${t}</i>${r.ch?chestIc(r.ch,26):r.gem?GEMS:r.frag?SHDS:COIN.replace("<svg",'<svg class="pc"')}<em>${r.ch?"Coffre":r.gem?"+"+r.gem:r.frag?"+"+r.frag:r.gold}</em></button>`}).join("")}</div>
   ${av.length?`<button class="btn main big" data-a="pclaimall" style="margin-top:8px">Tout récupérer (${av.length})</button>`:""}</div>`}
-function objHtml(){const d=divOf(),bd=S.bestDiv==null?d:Math.min(S.bestDiv,d),o=S.opps[S.day],H=S.pwh||[];
-  const s1=S.day<5&&o?`Bats ${o.name}${o.boss?" (boss)":o.rival?" (ton rival)":""} : +3 points`:"Lance la saison suivante";
+function objHtml(){const d=divOf(),bd=S.bestDiv==null?d:Math.min(S.bestDiv,d),o=curOpp(),H=S.pwh||[];
+  const s1=S.day<NDAYS&&o?`Bats ${o.name}${o.boss?" (boss)":o.rival?" (ton rival)":""} : +3 points`:"Lance la saison suivante";
   const s2=d>0?`Finis dans les 2 premiers : montée en division ${LDIV[d-1].l}`:"Termine champion de la division d'élite";
   const s3=bd>0?`Atteins la division ${LDIV[0].l} (meilleure : ${LDIV[bd].l})`:`Remporte 3 coupes (${S.cups||0}/3)`;
   let curve="";if(H.length>=2){const L=H.slice(-16),mx=Math.max(...L.map(x=>x.p)),mn=Math.min(...L.map(x=>x.p)),W_=300,H_=60,X=i=>8+i*(W_-16)/(L.length-1),Y=p=>H_-6-(mx===mn?.5:(p-mn)/(mx-mn))*(H_-14);
@@ -4332,8 +4400,8 @@ function clubLvlHtml(){const l=clubLvl(),[x,n]=clubXpIn(),nx=Object.keys(CUNL).m
 function relicsHtml(){const R=S.relics||[];return `<div class="card"><div class="card-h"><h2>Reliques du club</h2><span class="badge">${R.length}/6</span></div><p class="hint" style="margin:0 0 8px">${clubLvl()>=3?"Bats le boss de division (5e journée) pour gagner une relique : un bonus permanent pour tout le club.":"Débloquées au niveau 3 du club : bats le boss de division pour en gagner."}</p>
   <div class="relg">${Object.keys(RELICS).map(k=>{const on=R.includes(k);return `<div class="rel${on?" on":""}"><svg viewBox="0 0 24 24">${RELIC_IC}</svg><b>${on?RELICS[k].l:"???"}</b><em>${on?RELICS[k].d:"À gagner"}</em></div>`}).join("")}</div></div>`}
 const RIVALN=["Les Chacals d'Ombre","La Horde Écarlate","Les Faucons Noirs","Les Vipères d'Argent","La Meute Grise"];
-function rivalize(){if(clubLvl()<2||!S.opps)return;if(!S.rival)S.rival={name:pick(RIVALN),w:0,l:0};const o=S.opps[2];if(o&&!o.rival){o.rival=1;o.name=S.rival.name;o.team.forEach(m=>{m.lvl++})}}
-function bossify(){if(clubLvl()<3||!S.opps)return;const o=S.opps[4];if(!o||o.boss)return;o.boss=1;o.team.forEach(m=>{m.lvl++});const L=HEROES.filter(h=>h[3]==="legendaire"&&h[2]===o.team[0].cls);const h=pick(L.length?L:HEROES.filter(h=>h[3]==="legendaire"));
+function rivalize(){if(clubLvl()<2||!S.opps)return;if(!S.rival)S.rival={name:pick(RIVALN),w:0,l:0};if(S.opps.some(o=>o.rival))return;const o=S.opps.find(o=>o.tier===2&&!o.boss)||S.opps[2];if(o){o.rival=1;o.name=S.rival.name}}
+function bossify(){if(clubLvl()<3||!S.opps||S.opps.some(o=>o.boss))return;const o=S.opps.find(o=>o.tier===2&&!o.rival)||S.opps[4];if(!o)return;o.boss=1;const L=HEROES.filter(h=>h[3]==="legendaire"&&h[2]===o.team[0].cls);const h=pick(L.length?L:HEROES.filter(h=>h[3]==="legendaire"));
   const b=makeNamed(h[0],Math.max(...o.team.map(m=>m.lvl))+1);b.slot=o.team[0].slot;b.rules=o.team[0].rules||defRules();o.team[0]=b;o.captain=b.id;o.bossName=b.name}
 function rollEv(){S.ev=clubLvl()>=4&&Math.random()<.3?pick(Object.keys(EVB)):null}
 function grantRelic(){const left=Object.keys(RELICS).filter(k=>!(S.relics||[]).includes(k));S.gem=(S.gem||0)+2;if(!left.length){setTimeout(()=>toast("Boss vaincu : +2 gemmes"),3800);return}const k=pick(left);S.relics=(S.relics||[]).concat([k]);setTimeout(()=>{toast(`Boss vaincu ! Relique : ${RELICS[k].l} (${RELICS[k].d})`);uiSfx&&uiSfx("fanfare")},3800)}
@@ -4351,8 +4419,8 @@ function clubHtml0(){const H=S.hist||[],champ=H.filter(x=>x.rank===1).length,tw=
   return h}
 function guideHtml(){
   const acc=(ic,t,body,open)=>`<details class="acc"${open?" open":""}><summary><svg viewBox="0 0 24 24">${GIC[ic]}</svg>${t}</summary><div class="ab">${body}</div></details>`;
-  let h=`<h2>Guide</h2><p class="hint">Tout ce qu'il faut savoir, rangé par thème.</p><div class="card flat qs"><div class="kicker">Premiers pas</div><ol><li><b>Marché</b> : recrute 5 combattants.</li><li><b>Effectif</b> : place-les sur la table et choisis le capitaine (★).</li><li><b>Accueil</b> : touche « Jouer » pour lancer le combat.</li><li>Gagne de l'or et de l'XP, améliore tes héros, recommence.</li><li>Finis la saison (5 journées) le plus haut possible.</li></ol></div>`;
-  h+=acc("start","Comment jouer",`<p>Une saison dure <b>5 journées</b>. Chaque journée : tu recrutes au <b>Marché</b>, tu places 5 combattants et tu choisis leur tactique dans <b>Effectif</b>, puis tu lances le combat depuis l'<b>Accueil</b> ou <b>Matchs</b>.</p><p>Le combat se joue tout seul : ta préparation fait la différence. Victoire : 3 points et ${ECO.win} or. Défaite : ${ECO.loss} or. Le premier du classement est champion.</p>`,true);
+  let h=`<h2>Guide</h2><p class="hint">Tout ce qu'il faut savoir, rangé par thème.</p><div class="card flat qs"><div class="kicker">Premiers pas</div><ol><li><b>Marché</b> : recrute 5 combattants.</li><li><b>Effectif</b> : place-les sur la table et choisis le capitaine (★).</li><li><b>Accueil</b> : touche « Jouer » pour lancer le combat.</li><li>Gagne de l'or et de l'XP, améliore tes héros, recommence.</li><li>Finis la saison (18 journées, matchs aller et retour) le plus haut possible.</li></ol></div>`;
+  h+=acc("start","Comment jouer",`<p>Une saison dure <b>18 journées</b> (10 clubs, matchs aller et retour). Chaque journée : tu recrutes au <b>Marché</b>, tu places 5 combattants et tu choisis leur tactique dans <b>Effectif</b>, puis tu lances le combat depuis l'<b>Accueil</b> ou <b>Matchs</b>.</p><p>Le combat se joue tout seul : ta préparation fait la différence. Victoire : 3 points et ${ECO.win} or. Défaite : ${ECO.loss} or. Le premier du classement est champion.</p>`,true);
   h+=acc("cls","Les 10 classes",`<div class="gl">${Object.keys(CLASSES).map(k=>{const c=CLASSES[k];return `<div class="gcls"><img src="${spriteUrl({seed:777+k.length*13,cls:k,rar:"rare",lvl:1},0)}" alt=""><div><b>${c.label}</b>, ${c.role.toLowerCase()} (${RANGED.has(k)?"distance":"mêlée"}, armure ${ARL[ARMOR[k]].toLowerCase()}). ${c.basic} <b style="color:var(--mana)">${c.sk}</b> : ${c.skd(1)}</div></div>`}).join("")}</div>`);
   h+=acc("cls","Le club et ses bâtiments",`<p>Dans l'onglet <b>Club</b>, lance <b>un chantier à la fois</b> : il avance à chaque match joué (niveau 1 = 1 match, niveau 2 = 2 matchs…).</p><div class="gl">${BKEYS.map(k=>`<div><b>${BLD[k].l}</b> : ${BLD[k].s.toLowerCase()}.</div>`).join("")}</div><p>La <b>Maison du club</b> ouvre des postes de personnel (entraîneur, médecin, dépisteur, intendant). Un combattant mis K.O. peut se <b>blesser</b> : il manque 1 ou 2 matchs, son remplaçant prend sa place, et l'infirmerie peut le soigner contre de l'or.</p>`);
   h+=acc("cls","Compétition et modes",`<p><b>Divisions</b> : de Fer à Légende. Les 2 premiers montent, le dernier descend. Plus la division est haute, plus les adversaires sont forts et la prime de saison élevée.</p><p><b>Coupe de l'Arène</b> : quart après la journée 1, demi après la 3, finale après la 5. Une défaite élimine. Vainqueur : coffre d'argent et 2 gemmes.</p><p><b>Autres modes</b> (onglet Matchs) : Porte de fer (étages), Draft (équipe d'un jour), Défi fantôme (ton équipe de la saison passée). Les remplaçants gagnent de l'XP automatiquement à chaque match (académie).</p><p><b>Chaque jour</b> : 3 missions, bonus de connexion, et 24 succès à débloquer (Menu › Statistiques et succès).</p>`);
@@ -4370,7 +4438,7 @@ function guideHtml(){
 }
 const TSCR={};
 function render(){
-  {const fb=$("fab");if(fb){const F_=fighters(S.team);fb.hidden=tab==="home"||tab==="league"||!(S.day<5)||!F_.length;fb.innerHTML=`<svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg><span>Jouer</span>`}}
+  {const fb=$("fab");if(fb){const F_=fighters(S.team);fb.hidden=tab==="home"||tab==="league"||!(S.day<NDAYS)||!F_.length;fb.innerHTML=`<svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg><span>Jouer</span>`}}
   {const vv=$("view");if(render._t!==tab){vv.classList.remove("vin");void vv.offsetWidth;vv.classList.add("vin");render._t=tab}}
   header();{const ck=JSON.stringify(S.club)+JSON.stringify(crestOrn());if($("crest").dataset.k!==ck){$("crest").dataset.k=ck;$("crest").innerHTML=clubCrest();$("brand").textContent=CLUB}}if(!$("coinic").innerHTML){$("coinic").innerHTML=COIN;document.querySelectorAll("svg.nvi").forEach(s=>s.innerHTML=NAVIC[s.dataset.ic])}
   document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===tab));
@@ -4397,10 +4465,10 @@ function render(){
 
     const full=S.team.length>=maxTeam();
     let h=`${tutoHtml("market")}${subSeg("market")}<div class="subp" data-sp="ch">${offersHtml()}${chestsHtml()}</div><div class="subp" data-sp="rec"><h2>Marché aux mercenaires</h2>${mevHtml()}<p class="hint">${full?`Effectif complet (${maxTeam()}) : vends quelqu'un pour recruter.`:"Chaque recrue reste 1 à 3 matchs. Les prix varient : repère les bonnes affaires."}</p><div class="list">`;
-    h+=S.market.length?S.market.map((m,i)=>mercCard(m,"market",i,`<button class="btn main" data-a="buy" data-i="${i}" ${full||(!S.test&&S.gold<mprice(m))?"disabled":""}>${mprice(m)} or</button>`,m.noir?"noir":"",`<div class="mk-tags">${m.noir?'<span class="tg noir">Marché noir</span>':dealTag(m)}<span class="tg">${(m.days||1)>1?`Reste ${m.days} matchs`:"Part après le match"}</span></div>`)).join(""):`<div class="empty">Plus personne au marché.</div>`;
-    h+=`</div><div class="section"><button class="btn big" data-a="reroll" ${!S.test&&!(S.freeRr>0)&&S.gold<5?"disabled":""}>Nouvelles recrues${S.test?"":S.freeRr>0?" (gratuit)":" (5 or)"}</button>${bl("recru")>=1?`<button class="btn big" data-a="focus" style="margin-top:8px">Classe ciblée : ${S.focus&&CLASSES[S.focus]?CLASSES[S.focus].label:"aucune"}</button>`:""}</div></div>
+    h+=S.market.length?S.market.map((m,i)=>mercCard(m,"market",i,`<button class="btn main" data-a="buy" data-i="${i}" ${full||(!S.test&&S.gold<mprice(m))?"disabled":""}>${mprice(m)} or</button>`,m.noir?"noir":"",`<div class="mk-tags">${m.free?'<span class="tg good">Offert par le club</span>':m.noir?'<span class="tg noir">Marché noir</span>':dealTag(m)}<span class="tg">${(m.days||1)>1?`Reste ${m.days} matchs`:"Part après le match"}</span></div>`)).join(""):`<div class="empty">Plus personne au marché.</div>`;
+    h+=`</div><div class="section"><button class="btn big" data-a="reroll" ${!S.test&&!(S.freeRr>0)&&S.gold<rrCost()?"disabled":""}>Nouvelles recrues${S.test?"":S.freeRr>0?" (gratuit)":` (${rrCost()} or)`}</button>${bl("recru")>=1?`<button class="btn big" data-a="focus" style="margin-top:8px">Classe ciblée : ${S.focus&&CLASSES[S.focus]?CLASSES[S.focus].label:"aucune"}</button>`:""}</div></div>
       <div class="subp" data-sp="shop"><div class="section"><h2>Armurerie</h2><p class="hint">Les objets achetés vont dans ton coffre. Équipe-les depuis la fiche d'un combattant.</p><div class="shop">${(S.shop||[]).map((it,j)=>itemRow(it,`<button class="btn main sm" data-a="gbuy" data-i="${j}" ${!S.test&&S.gold<itemPrice(it)?"disabled":""}>${itemPrice(it)} or</button>`)).join("")||'<div class="empty">Rupture de stock jusqu\'au prochain match.</div>'}</div>
-        <button class="btn big" data-a="shoprr" style="margin-top:10px" ${!S.test&&S.gold<10?"disabled":""}>Nouveaux objets${S.test?"":" (10 or)"}</button>
+        <button class="btn big" data-a="shoprr" style="margin-top:10px" ${!S.test&&S.gold<srCost()?"disabled":""}>Nouveaux objets${S.test?"":` (${srCost()} or)`}</button>
         ${(S.items||[]).length?`<p class="hint" style="margin-top:10px">Coffre : ${S.items.length} objet${S.items.length>1?"s":""} non équipé${S.items.length>1?"s":""}.</p>`:""}</div></div>
       ${S.test&&SUBT.market==="rec"?`<div class="section opp"><div class="sub">Mode test · recrutement direct</div><div class="testrow">
         <select id="tr-cls">${Object.keys(CLASSES).map(k=>`<option value="${k}">${CLASSES[k].label}</option>`).join("")}</select>
@@ -4414,11 +4482,11 @@ function render(){
   }else{
     const rows=[{name:CLUB,pts:S.pts,w:S.sw,l:S.sl,me:1},...S.opps].sort((a,b)=>b.pts-a.pts||b.w-a.w);
     let h="";
-    if(S.day<5){
-      const o=S.opps[S.day],st=STYLES[o.style],L=o.team.find(m=>m.id===o.leader);
+    if(S.day<NDAYS){
+      const o=curOpp(),st=STYLES[o.style],L=o.team.find(m=>m.id===o.leader);
       o.team.forEach(m=>m.cap=m.id===o.captain);
       const OF=fighters(o.team).sort((a,b)=>a.slot.localeCompare(b.slot)),tips=codexLines(o);
-      h+=`${tutoHtml("league")}<div class="opp"><div class="op-head"><div><div class="lg-label">Journée ${S.day+1} sur 5, prochain adversaire</div><div class="vs">${o.name}</div></div><span class="stylebadge">${st.l}</span></div>
+      h+=`${tutoHtml("league")}<div class="opp"><div class="op-head"><div><div class="lg-label">Journée ${S.day+1} sur ${NDAYS}${S.day>=NDAYS/2?" (matchs retour)":""}, prochain adversaire</div><div class="vs">${o.name}</div></div><span class="stylebadge">${st.l}</span></div>
         <div class="orow">${OF.map(m=>oppCard(o,m)).join("")}</div>
         <p class="op-tip">${st.d}${tips.length?"<br>"+tips.join("<br>"):""}</p>
         <button class="arpill" data-a="arenainfo"><img src="${terrainMini(S.terrain||"colisee",S.arena)}" alt=""><span><b>${TERRAINS[S.terrain||"colisee"].l}</b><em>${ARENAS[S.arena].l} : ${ARENAS[S.arena].d}</em></span><span class="chev">›</span></button>
@@ -4427,17 +4495,18 @@ function render(){
     }else{
       const rank=rows.findIndex(r=>r.me)+1,bonus=Math.round(ECO.season[rank-1]*divPrize(divOf()));
       h+=`<div class="opp"><div class="sub">Fin de la saison ${S.season}</div><div class="podium">${[1,0,2].map(k=>{const r=rows[k];if(!r)return "";return `<div class="pod p${k+1}${r.me?" me":""}">${r.me?clubCrest():crestSvg(oppCrest(r))}<b>${r.me?CLUB:r.name}</b><em>${r.pts} pts</em><div class="pblk"><span>${k+1}</span></div></div>`}).join("")}</div><div class="vs">${rank===1?"Champion !":"Classé "+rank+"e"}</div>
-        <p class="hint" style="margin-top:8px">Prime de fin de saison : <b style="color:var(--bronze)">${bonus} or</b>.${rank<=2&&divOf()>0?` Promotion en division ${LDIV[divOf()-1].l} !`:rank>=6&&divOf()<5?` Relégation en division ${LDIV[divOf()+1].l}.`:" Tu restes dans ta division."}</p>
+        <div class="tiles" style="margin-top:8px"><div class="tile"><b>${S.sw}-${S.sl}</b><span>victoires-défaites</span></div><div class="tile"><b>${S.pts}</b><span>points</span></div><div class="tile"><b>${(()=>{const e=Object.entries(S.smvp||{}).sort((a,b)=>b[1]-a[1])[0];const m=e&&S.team.find(x=>String(x.id)===String(e[0]));return m?fn(m):"–"})()}</b><span>meilleur joueur</span></div></div>
+        <p class="hint" style="margin-top:8px">Prime de fin de saison : <b style="color:var(--bronze)">${bonus} or</b>.${rank<=2&&divOf()>0?` Promotion en division ${LDIV[divOf()-1].l} !`:rank>=NCLUBS-1&&divOf()<5?` Relégation en division ${LDIV[divOf()+1].l}.`:" Tu restes dans ta division."}</p>
         <button class="btn main big" data-a="nextseason" data-b="${bonus}" data-r="${rank}">Saison ${S.season+1}</button></div>`;
     }
     if(S.test)h+=`<div class="section opp"><div class="sub">Mode test · combat d'entraînement sans enjeu</div><div class="testrow">
-      <select id="pr-opp">${S.opps.map((o,j)=>`<option value="${j}" ${j===Math.min(S.day,4)?"selected":""}>${o.name} (${STYLES[o.style].l})</option>`).join("")}</select>
+      <select id="pr-opp">${S.opps.map((o,j)=>`<option value="${j}" ${j===Math.max(0,curOppIdx())?"selected":""}>${o.name} (${STYLES[o.style].l})</option>`).join("")}</select>
       <select id="pr-terrain">${TKEYS.map(k=>`<option value="${k}" ${k===S.terrain?"selected":""}>${TERRAINS[k].l}</option>`).join("")}</select><select id="pr-arena">${AKEYS.map(k=>`<option value="${k}" ${k===S.arena?"selected":""}>${ARENAS[k].l}</option>`).join("")}</select></div>
       <button class="btn main big" data-a="practice" ${fighters(S.team).length?"":"disabled"}>Combat d'entraînement</button></div>`;
     if(lastFight)h+=`<div class="section"><button class="btn big" data-a="replay">Revoir le dernier combat</button></div>`;
     h+=passHtml()+objHtml()+cupHtml()+modesHtml()+`<div class="section opp"><div class="card-h"><h2>Classement</h2>${divBadge(divOf())}</div><table><thead><tr><th>#</th><th>Club</th><th class="n">V</th><th class="n">D</th><th class="n">Pts</th></tr></thead><tbody>`+
-      rows.map((r,i)=>`<tr class="${r.me?"me":""}${i<2&&divOf()>0?" up":""}${i===5&&divOf()<5?" dn":""}"><td>${i+1}</td><td>${r.name}</td><td class="n">${r.w}</td><td class="n">${r.l}</td><td class="n">${r.pts}</td></tr>`).join("")+`</tbody></table>
-      <p class="hint" style="margin-top:8px">Les 2 premiers montent, le dernier descend. Victoire : 3 pts et ${ECO.win} or. Défaite : ${ECO.loss} or. Prime de saison ×${String(divPrize(divOf())).replace(".",",")} dans cette division.${S.rule&&SRULES[S.rule]?`<br><b style="color:var(--gild-hi)">${SRULES[S.rule].l}</b> : ${SRULES[S.rule].d}.`:""}<br>Objectif de mi-saison : 6 points après 3 journées (+50 or, 1 gemme).</p></div>
+      rows.map((r,i)=>`<tr class="${r.me?"me":""}${i<2&&divOf()>0?" up":""}${i>=NCLUBS-2&&divOf()<5?" dn":""}"><td>${i+1}</td><td>${r.name}${r.tier===2?' <span class="tg" style="font-size:9.5px;padding:0 5px">Favori</span>':""}${r.rival?' <span class="tg" style="font-size:9.5px;padding:0 5px;color:#c79bff">Rival</span>':""}</td><td class="n">${r.w}</td><td class="n">${r.l}</td><td class="n">${r.pts}</td></tr>`).join("")+`</tbody></table>
+      <p class="hint" style="margin-top:8px">Les 2 premiers montent, les 2 derniers descendent. Victoire : 3 pts et ${ECO.win} or. Défaite : ${ECO.loss} or. Prime de saison ×${String(divPrize(divOf())).replace(".",",")} dans cette division.${S.rule&&SRULES[S.rule]?`<br><b style="color:var(--gild-hi)">${SRULES[S.rule].l}</b> : ${SRULES[S.rule].d}.`:""}<br>Objectif de mi-saison : 15 points après 9 journées (+50 or, 1 gemme). À partir de la journée 10 (matchs retour), les adversaires gagnent 1 niveau.</p></div>
 `;
     v.innerHTML=h;setTimeout(startOdds,30);
   }
@@ -4540,7 +4609,7 @@ function openFiche(i,ft){
       <div class="xpline"><span>Niv ${m.lvl}</span><i><b style="width:${Math.round((m.xp||0)/xpNeed(m)*100)}%"></b></i><span>${m.xp||0}/${xpNeed(m)} XP</span></div>
       <div class="fh-kpi"><div><span>Valeur de marché${tip("val")}</span><b>${price(m)} <small>or</small></b></div><div><span>Performance${tip("perf")}</span><b>${ps?`<i class="pgr pg${ps.g}">${ps.g}</i> ${ps.l}`:"<small>Pas encore évalué</small>"}</b></div></div></div>
     ${tabs}${body}
-    <div class="fi-acts"><button class="btn" data-a="train" data-i="${i}" ${!S.test&&S.gold<trainCost(m)?"disabled":""}>Niv+ ${S.test?"":trainCost(m)+" or"}</button><button class="btn" data-a="fire" data-i="${i}">Vendre ${Math.round(price(m)*ECO.sell)} or</button><button class="btn main" data-a="close">Fermer</button></div></div>`;
+    <div class="fi-acts"><button class="btn" data-a="train" data-i="${i}" ${!S.test&&(S.gold<trainCost(m)||trainedNow(m))?"disabled":""}>${!S.test&&trainedNow(m)?"Entraîné (1/journée)":"Niv+ "+(S.test?"":trainCost(m)+" or")}</button><button class="btn" data-a="fire" data-i="${i}">Vendre ${Math.round(price(m)*ECO.sell)} or</button><button class="btn main" data-a="close">Fermer</button></div></div>`;
   el.hidden=false;
 }
 function skSlotsHtml(m,i,big){ensureSkills(m);const n=slotsOf(m);let h=`<div class="skslots${big?" big":""}">`;
@@ -4561,7 +4630,7 @@ function skDetail(m,i,id){
   let acts="";const demo=`<canvas id="skdemo" class="skdemo" width="640" height="300"></canvas>`;
   if(leg)acts=`<p class="muted">Compétence unique de ${fn(m)}, toujours équipée.</p>`;
   else if(locked)acts=evl?`<p class="muted">Ultime : fais évoluer ${fn(m)} jusqu'au <b>stade 2</b> pour l'apprendre, quelle que soit sa rareté.</p>`:`<p class="muted">Rang ${ROMAN[s.r]} : réservé aux combattants ${RAR[RKEYS[s.r-1]].label.toLowerCase()}s ou plus rares.</p>`;
-  else if(!known)acts=`<button class="btn main big" data-a="sklearn" data-i="${i}" data-s="${id}" ${!S.test&&S.gold<pr?"disabled":""}>Apprendre (gratuit)</button>${tomes?`<button class="btn big" style="margin-top:6px" data-a="sktome" data-i="${i}" data-s="${id}">Apprendre avec un tome (${tomes})</button>`:""}${bo===2?'<p class="muted">Famille secondaire pour cette classe : prix doublé.</p>':""}`;
+  else if(!known)acts=`<button class="btn main big" data-a="sklearn" data-i="${i}" data-s="${id}" ${!S.test&&S.gold<pr?"disabled":""}>Apprendre${S.test?" (gratuit)":pr?" · "+pr+" or":" (gratuit)"}</button>${tomes?`<button class="btn big" style="margin-top:6px" data-a="sktome" data-i="${i}" data-s="${id}">Apprendre avec un tome (${tomes})</button>`:""}${bo===2?'<p class="muted">Famille secondaire pour cette classe : prix doublé.</p>':""}`;
   else if(eq)acts=`<button class="btn big" data-a="skuneq" data-i="${i}" data-s="${id}">Retirer de l'emplacement</button>`;
   else acts=m.skills.eq.length<slotsOf(m)?`<button class="btn main big" data-a="skeq" data-i="${i}" data-s="${id}">Équiper</button>`:`<p class="muted">Emplacements pleins : remplace une compétence.</p><div class="row">${m.skills.eq.map(o=>`<button class="btn" data-a="skrep" data-i="${i}" data-s="${id}" data-o="${o}">À la place de ${SKILLS[o].l}</button>`).join("")}</div>`;
   const lvl=known&&!leg?`<div class="sklv"><div class="sklv-h"><span>Niveau <b>${L}</b>/5</span><span class="pips">${[1,2,3,4,5].map(k=>`<i class="${k<=L?"on":""}"></i>`).join("")}</span></div>${L<5?`<p class="muted" style="margin:4px 0 6px">Niveau ${L+1} : ${s.pas?`effets +${12*L} % (au lieu de +${12*(L-1)} %)`:`puissance +${12*L} % (au lieu de +${12*(L-1)} %), recharge −${4*L} %`}.</p><button class="btn big${(m.skp||0)>=skUpCost(L)?" main":""}" data-a="skup" data-i="${i}" data-s="${id}" ${(m.skp||0)<skUpCost(L)&&!S.test?"disabled":""}>Améliorer · ${skUpCost(L)} point${skUpCost(L)>1?"s":""}</button>`:`<p class="muted" style="margin:4px 0 0">Maîtrisée : niveau maximum.</p>`}</div>`:"";
@@ -4683,7 +4752,7 @@ document.addEventListener("click",e=>{
   const tb=e.target.closest("nav button");if(tb){const vv=$("view");TSCR[tab]=vv.scrollTop;const same=tab===tb.dataset.tab;tab=tb.dataset.tab;resetArmed=false;sel=null;render();vv.scrollTop=same?0:(TSCR[tab]||0);return}
   const b=e.target.closest("[data-a]");if(!b||b.disabled)return;
   const a=b.dataset.a,i=+b.dataset.i;
-  if(a==="info"){const l=b.dataset.l;openSheet(l==="team"?S.team[i]:l==="market"?S.market[i]:l==="draft"?S.draft.ch[i]:l==="draftt"?S.draft.picks[i]:S.opps[S.day].team[i]);return}
+  if(a==="info"){const l=b.dataset.l;openSheet(l==="team"?S.team[i]:l==="market"?S.market[i]:l==="dpool"?S.draft.pool[i]:curOpp().team[i]);return}
   if(a==="close"){if(NAV.length>1)navBack();else navClose();return}
   if(a==="navback"){navBack();return}
   if(a==="tip"){showTip(b,b.dataset.k);return}
@@ -4693,27 +4762,28 @@ document.addEventListener("click",e=>{
   if(a==="pclaim"){passClaim(+b.dataset.t);uiSfx("coin");save();header();render();toast("Récompense : "+passRL(passR(+b.dataset.t)));return}
   if(a==="pclaimall"){const T=passTier();let n=0;for(let t=1;t<=T;t++)if(!passSt().cl.includes(t)){passClaim(t);n++}uiSfx("coin");save();header();render();toast(`${n} récompense${n>1?"s":""} récupérée${n>1?"s":""}`);return}
   if(a==="albclaim"){S.seen=S.seen||[];const n=new Set([...S.seen,...S.team.filter(m=>m.hk).map(m=>m.hk)]).size;if(Math.floor(n/10)<=(S.albc||0))return;S.albc=(S.albc||0)+1;S.gem=(S.gem||0)+3;uiSfx("coin");save();header();render();toast("Album : +3 gemmes");return}
-  if(a==="shoprr"){if(!S.test){if(S.gold<10)return;S.gold-=10}S.shop=[0,1,2].map(()=>makeItem(null,rollRarity(S.season||1)));uiSfx("coin");save();header();render();toast("Nouveaux objets à l'armurerie");return}
+  if(a==="shoprr"){if(!S.test){const c=srCost();if(S.gold<c)return;S.gold-=c;S.srN=(S.srN||0)+1}S.shop=[0,1,2].map(()=>makeItem(null,rollRarity(stage())));uiSfx("coin");save();header();render();toast("Nouveaux objets à l'armurerie");return}
   if(a==="subt"){SUBT[b.dataset.k]=b.dataset.v;render();$("view").scrollTop=0;return}
   if(a==="closeall"){navClose();return}
   if(a==="fnext"){const n=S.team.length;navTop=1;openFiche(((+b.dataset.d+ficheI)%n+n)%n);const sc=document.querySelector("#sheet .sheet");if(sc)sc.scrollTop=0;return}
   if(a==="menu"){openMenu();return}
   if(a==="m-guide"){openPlain(guideHtml());return}
   if(a==="m-stats"){openPlain(statsHtml());return}
-  if(a==="exp"){openPlain(exportHtml());return}
+  if(a==="exp"){S.expK=S.season*100+S.day;save();openPlain(exportHtml());return}
+  if(a==="expskip"){S.expK=S.season*100+S.day;save();render();return}
   if(a==="imp"){openPlain(importHtml());return}
   if(a==="expcopy"){const t=$("exp-t");t.select();let ok=false;try{ok=document.execCommand("copy")}catch(e){}try{navigator.clipboard&&navigator.clipboard.writeText(t.value).then(()=>toast("Sauvegarde copiée"))}catch(e){}if(ok)toast("Sauvegarde copiée");return}
   if(a==="impgo"){let d=null;try{d=JSON.parse($("imp-t").value.trim())}catch(e){}if(!d||!Array.isArray(d.team)||!d.opps){toast("Texte invalide : rien n'a été changé");return}S=d;save();load();$("sheet").hidden=true;header();tab="home";render();toast("Sauvegarde importée");return}
   if(a==="rep"){const r=(S.reps||[])[+b.dataset.j];if(!r)return;$("sheet").hidden=true;play(r.F,true);return}
-  if(a==="diff"){S.diff=b.dataset.v;save();openPlain(settingsHtml());toast("Difficulté appliquée dès la prochaine saison");return}
+  if(a==="diff"){const DI=k=>DIFFS.findIndex(x=>x[0]===k);if(!S.test&&DI(b.dataset.v)>DI(S.diff||"normal"))return;S.diff=b.dataset.v;save();openPlain(settingsHtml());toast("Difficulté appliquée dès la prochaine saison");return}
   if(a==="m-opts"){openPlain(settingsHtml());return}
   if(a==="m-codex"){openPlain(codexClassesHtml(b.dataset.k||null));return}
   if(a==="m-saves"){$("sheet").hidden=true;titleScreen(true);return}
   if(a==="ftab"){ficheTab=b.dataset.v;navTop=1;openFiche(i);const sc=document.querySelector(".sheet");if(sc)sc.scrollTop=0;return}
-  if(a==="evolve"){const m=S.team[i],t=(m.evo||0),R=EVOREQ[t];if(!R||m.lvl<R.lvl||RKEYS.indexOf(m.rar)<R.rar)return;if(!S.test){if(S.gold<R.cost)return;S.gold-=R.cost}m.evo=t+1;save();header();sfxUI&&sfxUI("equip");vib([40,40,80]);$("sheet").hidden=true;render();setTimeout(()=>reveal({m,rar:m.rar,btn:`${fn(m)} devient ${clsName(m)} !`}),60);return}
+  if(a==="evolve"){const m=S.team[i],t=(m.evo||0),R=EVOREQ[t];if(!R||m.lvl<R.lvl||RKEYS.indexOf(m.rar)<R.rar)return;if(!S.test){if(S.gold<R.cost||(S.gem||0)<(R.gem||0))return;S.gold-=R.cost;S.gem-=(R.gem||0)}m.evo=t+1;save();header();sfxUI&&sfxUI("equip");vib([40,40,80]);$("sheet").hidden=true;render();setTimeout(()=>reveal({m,rar:m.rar,btn:`${fn(m)} devient ${clsName(m)} !`}),60);return}
   if(a==="chopen"){const k=b.dataset.k;if(!(S.chests||{})[k])return;S.chests[k]--;openChest(k);return}
   if(a==="chbuy"){const k=b.dataset.k,C=CHESTS[k];if(!S.test){if(S.gold<C.g)return;S.gold-=C.g}openChest(k);return}
-  if(a==="chkey"){const k=b.dataset.k,c=k==="divin"?10:5;if(!S.test){if((S.keys||0)<c)return;S.keys-=c}openChest(k);return}
+  if(a==="chkey"){const k=b.dataset.k,c=k==="divin"?60:seasonChest().keys;if(!S.test){if((S.keys||0)<c)return;S.keys-=c}openChest(k);return}
   if(a==="awaken"){const m=S.team[i],c=awkCost(m);if((m.stars||0)>=5)return;if(!S.test){if(m.hk){if(((S.shards||{})[m.hk]||0)<c)return;S.shards[m.hk]-=c}else{if((S.awk||0)<c)return;S.awk-=c}}m.stars=(m.stars||0)+1;save();render();openFiche(i);vib([40,40,80]);toast(`${fn(m)} s'éveille : ${"★".repeat(m.stars)}`);return}
   if(a==="ofyes"||a==="ofno"){const id=+b.dataset.id,o=(S.offers||[]).find(x=>x.id===id);if(!o)return;S.offers=S.offers.filter(x=>x!==o);if(a==="ofyes"){const k=S.team.findIndex(m=>m.id===id);if(k<0)return;const m=S.team.splice(k,1)[0];toHall(m);S.gold+=o.g;fixTeam();toast(`${m.name} part chez ${o.c} (+${o.g} or)`)}save();header();render();return}
   if(a==="tbuy"){const j=+b.dataset.j,id=(S.tshop||[])[j];if(!id)return;const c=tomePrice(id);if(!S.test){if(S.gold<c)return;S.gold-=c}S.tshop.splice(j,1);S.tomes=S.tomes||{};S.tomes[id]=(S.tomes[id]||0)+1;save();header();render();toast(`Tome « ${SKILLS[id].l} » rangé`);return}
@@ -4759,7 +4829,7 @@ document.addEventListener("click",e=>{
   if(a==="setprof"){const m=S.team[i];applyProfile(m,b.dataset.p,S.team);save();render();openFiche(i);toast(`${fn(m)} : ${profLabel(m)}`);return}
   if(a==="alltac"){showAllTac=!showAllTac;render();return}
   if(a==="legend"){showLegend=!showLegend;render();return}
-  if(a==="codex"){const o=S.opps[S.day],L=o.team.find(m=>m.id===o.leader)||o.team[0];openSheet(L,codexHtml(o));return}
+  if(a==="codex"){const o=curOpp(),L=o.team.find(m=>m.id===o.leader)||o.team[0];openSheet(L,codexHtml(o));return}
   if(a==="replay"){play(lastFight,true);return}
   if(a==="gear"){openGear(i,b.dataset.s);return}
   if(a==="advise"){adviseTeam();toast("Équipe conseillée : tes 5 plus forts, placés au mieux");render();return}
@@ -4783,10 +4853,10 @@ document.addEventListener("click",e=>{
   if(a==="captain"){S.captain=S.team[i].id;save();openFiche(i);render();toast(`${fn(S.team[i])} est capitaine : équipe +6 % d'attaque`);return}
   if(a==="psave"){S.plans[i]={slots:Object.fromEntries(S.team.map(m=>[m.id,m.slot])),rules:Object.fromEntries(S.team.map(m=>[m.id,JSON.parse(JSON.stringify(m.rules||defRules()))])),prof:Object.fromEntries(S.team.map(m=>[m.id,m.profile||"auto"])),captain:S.captain};toast(`Composition ${"ABC"[i]} enregistrée`)}
   else if(a==="pload"){const P=S.plans[i];if(!P)return;S.team.forEach(m=>{if(m.id in P.slots){m.slot=P.slots[m.id];m.rules=JSON.parse(JSON.stringify(P.rules[m.id]));m.profile=(P.prof||{})[m.id]||"custom"}else m.slot=null});if(byId(P.captain))S.captain=P.captain;fixTeam();toast(`Composition ${"ABC"[i]} chargée`)}
-  else if(a==="train"){const m=S.team[i];if(!S.test)S.gold-=trainCost(m);m.lvl++;m.skp=(m.skp||0)+1;toast(`${m.name} passe niveau ${m.lvl}`);save();render();if(!$("sheet").hidden)openFiche(i);return}
+  else if(a==="train"){const m=S.team[i];if(!S.test){if(trainedNow(m)||S.gold<trainCost(m))return;S.gold-=trainCost(m);m.trD=trainKey()}m.lvl++;m.skp=(m.skp||0)+1;toast(`${m.name} passe niveau ${m.lvl}`);save();render();if(!$("sheet").hidden)openFiche(i);return}
   else if(a==="fire"){$("sheet").hidden=true;const m=S.team.splice(i,1)[0];toHall(m);S.gold+=Math.round(price(m)*ECO.sell);fixTeam();toast(`${m.name} vendu`)}
   else if(a==="buy"){uiSfx("coin");stc("recruits");misEv("buy");const m=S.market.splice(i,1)[0];m.joined=S.season;if(m.hk){S.seen=S.seen||[];if(!S.seen.includes(m.hk))S.seen.push(m.hk)}setTimeout(()=>reveal({m,rar:m.rar,btn:"Bienvenue au club"}),20);if(!S.test)S.gold-=mprice(m);delete m.mp;delete m.days;delete m.noir;m.rules=defRules();m.slot=autoSlot(m,S.team);S.team.push(m);fixTeam();toast(`${m.name} rejoint le club (${slotL(m)})`)}
-  else if(a==="reroll"){if(S.freeRr>0)S.freeRr--;else if(!S.test)S.gold-=5;refreshMarket()}
+  else if(a==="reroll"){if(S.freeRr>0)S.freeRr--;else if(!S.test){const c=rrCost();if(S.gold<c)return;S.gold-=c;S.rrN=(S.rrN||0)+1}refreshMarket()}
   else if(a==="tadd"){if(S.team.length>=maxTeam())return;const m=makeMerc(+$("tr-lvl").value,$("tr-cls").value,$("tr-rar").value,S.season);m.rules=defRules();m.slot=autoSlot(m,S.team);S.team.push(m);fixTeam();toast(`${m.name} rejoint le club (${slotL(m)})`)}
   else if(a==="testmode"&&!S.test){openPlain(`<h2>Mode administrateur</h2><div class="card flat"><p class="hint" style="margin:0 0 10px">Entre le code administrateur pour activer le mode illimité.</p><input id="adm-code" type="password" autocomplete="off" placeholder="Code" class="admin-in"><p class="hint" id="adm-err" style="color:#ff8b7b;margin:6px 0 0" hidden>Code incorrect.</p><button class="btn main big" data-a="admok" style="margin-top:10px">Valider</button></div>`);setTimeout(()=>{const x=$("adm-code");if(x){x.focus();x.onkeydown=e=>{if(e.key==="Enter")document.querySelector('[data-a="admok"]').click()}}},50);return}
   else if(a==="admok"){const v=($("adm-code")||{}).value||"";let x=5381;for(const ch of v.trim())x=((x*33)^ch.charCodeAt(0))>>>0;if(x!==3609338798){const er=$("adm-err");if(er)er.hidden=false;vib(120);return}testOn();header();navClose();openPlain(settingsHtml());toast("Code accepté : mode administrateur activé (tout est illimité)");save();render();return}
@@ -4796,13 +4866,14 @@ document.addEventListener("click",e=>{
   else if(a==="cupfight"){startCup();return}
   else if(a==="mode"){const k=b.dataset.k;openPlain(k==="gate"?gateHtml():k==="draft"?draftHtml():k==="ghost"?ghostHtml():acadHtml());return}
   else if(a==="gatego"){startGate();return}
-  else if(a==="draftgo"){startDraft();return}
+  else if(a==="draftgo"){startDraft(b.dataset.n);return}
+  else if(a==="dfilt"){draftF=b.dataset.k;openPlain(draftHtml());return}
   else if(a==="dpick"){draftPick(+b.dataset.j);return}
   else if(a==="draftfight"){draftFight();return}
   else if(a==="ghostgo"){startGhost();return}
   else if(a==="acadgo"){startAcad();return}
-  else if(a==="nextseason"){{const rk=+b.dataset.r||6,k=rk===1?"or":rk<=3?"argent":"bronze";S.chests=S.chests||{};S.chests[k]=(S.chests[k]||0)+1;if(rk===1)S.keys=(S.keys||0)+3;setTimeout(()=>toast(`Récompense de saison : ${CHESTS[k].l}${rk===1?" et 3 gemmes":""}`),400)}ghostSnap();S.hist=S.hist||[];S.hist.push({s:S.season,rank:+b.dataset.r||0,w:S.sw,l:S.sl});S.gold+=+b.dataset.b;S.season++;S.day=0;S.pts=0;S.sw=0;S.sl=0;{const rk=+b.dataset.r||6,d0=divOf();S.hist[S.hist.length-1].dv=d0;if(rk<=2&&d0>0){S.div=d0-1;setTimeout(()=>toast(`Promotion : division ${LDIV[S.div].l} !`),1200)}else if(rk>=6&&d0<5){S.div=d0+1;setTimeout(()=>toast(`Relégation en division ${LDIV[S.div].l}`),1200)}else S.div=d0;S.bestDiv=Math.min(S.bestDiv==null?5:S.bestDiv,S.div)}
-  S.opps=newSeasonOpps(S.season,S.div);rivalize();bossify();rollEv();S.cup=newCup();S.rule=pick(Object.keys(SRULES));refreshMarket();toast("Nouvelle saison !")}
+  else if(a==="nextseason"){try{retierClubs()}catch(e){}{const rk=+b.dataset.r||6,k=rk===1?"or":rk<=3?"argent":"bronze";S.chests=S.chests||{};S.chests[k]=(S.chests[k]||0)+1;const gq=[10,7,5,4,3,2,2,1,1,0][rk-1]||0;S.keys=(S.keys||0)+gq;setTimeout(()=>toast(`Récompense de saison : ${CHESTS[k].l}${gq?` et ${gq} gemme${gq>1?"s":""}`:""}`),400)}ghostSnap();S.hist=S.hist||[];S.hist.push({s:S.season,rank:+b.dataset.r||0,w:S.sw,l:S.sl});S.smvp={};S.gold+=+b.dataset.b;S.season++;S.day=0;S.pts=0;S.sw=0;S.sl=0;{const rk=+b.dataset.r||6,d0=divOf();S.hist[S.hist.length-1].dv=d0;if(rk<=2&&d0>0){S.div=d0-1;setTimeout(()=>toast(`Promotion : division ${LDIV[S.div].l} !`),1200)}else if(rk>=NCLUBS-1&&d0<5){S.div=d0+1;setTimeout(()=>toast(`Relégation en division ${LDIV[S.div].l}`),1200)}else S.div=d0;S.bestDiv=Math.min(S.bestDiv==null?5:S.bestDiv,S.div)}
+  S.opps=newSeasonOpps(S.season,S.div);S.sched=mkSched();rivalize();bossify();rollEv();S.cup=newCup();S.rule=pick(Object.keys(SRULES));refreshMarket();if(S.team.length<maxTeam()){const y=makeMerc(Math.max(1,divLv()-2),null,"commun");y.rules=defRules();y.slot=autoSlot(y,S.team);y.joined=S.season;S.team.push(y);fixTeam();setTimeout(()=>toast(`Centre de formation : ${y.name} (${CLASSES[y.cls].label.toLowerCase()}) rejoint le club`),2200)}toast("Nouvelle saison !")}
   else if(a==="reset"){if(!resetArmed){resetArmed=true;b.textContent="Touche encore pour confirmer";return}resetArmed=false;{const c=S.club;newGame();S.club=c;}lastFight=null;tab="team"}
   save();render();
 });
@@ -4861,11 +4932,11 @@ function startCup(){if(!cupAvail())return;const opp=cupOpp(),cp=x=>x?JSON.parse(
   lastFight={A:cp(fighters(S.team)),B:cp(fighters(opp.team)),opt:{subA:cp(benchOf(S.team).filter(m=>!m.inj)[0]),subB:cp(benchOf(opp.team)[0]),capA:S.captain,capB:opp.captain,terrain:S.terrain,rel:(S.relics||[]).slice()},arena:S.arena,practice:false,cup:true,seed:Math.floor(Math.random()*2**31),opp:opp.name+" · "+CUPR[S.cup.r]};
   play(lastFight,false)}
 function applyCup(win,g){const c=S.cup;progAdd(30,60);g=Math.round(g*goldMul());S.gold+=g;consTick();stc("fights");stc("gold",g);misEv("fight");if(win){stc("wins");misEv("cupwin")}
-  if(win){c.r++;c.opp=null;if(c.r>=3){c.won=true;S.cups=(S.cups||0)+1;S.chests=S.chests||{};S.chests.argent=(S.chests.argent||0)+1;S.keys=(S.keys||0)+2;setTimeout(()=>toast("Coupe de l'Arène remportée ! Coffre d'argent et 2 gemmes"),600)}else setTimeout(()=>toast(`Qualifié pour la ${CUPR[c.r].toLowerCase()}`),600)}
+  if(win){c.r++;c.opp=null;if(c.r>=4){c.won=true;S.cups=(S.cups||0)+1;S.chests=S.chests||{};S.chests.argent=(S.chests.argent||0)+1;S.keys=(S.keys||0)+2;setTimeout(()=>toast("Coupe de l'Arène remportée ! Coffre d'argent et 2 gemmes"),600)}else setTimeout(()=>toast(`Qualifié pour la ${CUPR[c.r].toLowerCase()}`),600)}
   else{c.out=c.r+1;setTimeout(()=>toast(`Éliminé en ${CUPR[c.r].toLowerCase()}`),600)}
   save();tab="league";render()}
 function startFight(oi,practice,arena,terrain){
-  const opp=S.opps[oi!=null?oi:S.day];
+  const opp=oi!=null?S.opps[oi]:curOpp();
   const cp=x=>x?JSON.parse(JSON.stringify(x)):null;
   lastFight={A:cp(fighters(S.team)),B:cp(fighters(opp.team)),opt:{subA:cp(benchOf(S.team)[0]),subB:cp(benchOf(opp.team)[0]),capA:S.captain,capB:opp.captain,terrain:terrain||S.terrain,rel:practice?null:(S.relics||[]).slice(),ev:practice?null:(S.ev||null)},arena:arena||S.arena,practice:!!practice,seed:Math.floor(Math.random()*2**31),opp:opp.name};
   play(lastFight,false);
@@ -4916,7 +4987,7 @@ function analyze(W,oppName){
   return out.slice(0,4);
 }
 function play(F,isReplay,opts){
-  opts=opts||{};audioInit();if(F.practice)isReplay=true;
+  opts=opts||{};document.querySelectorAll(".rv").forEach(e=>e.remove());audioInit();if(F.practice)isReplay=true;
   if(running)running.stop();
   const ar=$("arena"),A=ARENAS[F.arena],W=Battle(F.A,F.B,F.arena,F.seed,F.opt);
   const TKEY=W.terrain;
@@ -5383,7 +5454,7 @@ function play(F,isReplay,opts){
       <div class="ana"><h3>Analyse du combat</h3>${analyze(W,F.opp).map(l=>`<p>${l}</p>`).join("")}</div>
       <details class="det"><summary>Statistiques détaillées</summary>${tbl(0,CLUB)}${tbl(1,F.opp)}</details></div>
       <div class="ctrl"><button class="btn" id="again">Revoir</button>${HL?'<button class="btn" id="hl">Action du match</button>':""}<button class="btn main" id="close">${isReplay?"Fermer":"Continuer"}</button></div>`;
-    let done=false;const commit=()=>{pushRep(F,W.win);if(F.mode){if(rw)grantRewards(rw);applyMode(F,W.win);return}if(rw)grantRewards(rw);if(F.cup)applyCup(W.win,g+(rw?rw.bonus:0));else applyResult(W.win,g+(rw?rw.bonus:0))};
+    let done=false;const commit=()=>{window._st3=!!(rw&&rw.stars.every(Boolean));pushRep(F,W.win);if(F.mode){if(rw)grantRewards(rw);applyMode(F,W.win);return}if(rw)grantRewards(rw);if(F.cup)applyCup(W.win,g+(rw?rw.bonus:0));else applyResult(W.win,g+(rw?rw.bonus:0))};
     if($("hl"))$("hl").onclick=()=>{if(!isReplay&&!done){done=true;commit()}play(F,true,HL)};
     $("again").onclick=()=>{if(!isReplay&&!done){done=true;commit()}play(F,true)};
     $("close").onclick=()=>{if(done&&!isReplay){ar.hidden=true;return}done=true;ar.hidden=true;if(!isReplay)commit()};
@@ -5414,14 +5485,14 @@ function play(F,isReplay,opts){
 }
 function getRar(r){return getComputedStyle(document.documentElement).getPropertyValue("--r-"+r).trim()||"#9a8b78"}
 function applyResult(win,g,silent){
-  const opp=S.opps[S.day];progAdd(win?40:20,win?100:50);S.pwh=(S.pwh||[]).concat([{p:teamPwr(S.team),w:!!win}]).slice(-30);if(opp.rival&&S.rival){if(win)S.rival.w++;else S.rival.l++;if(win){S.gold+=50;setTimeout(()=>toast(`Rival battu : ${opp.name} ! +50 or`),3000)}}if(win&&opp.boss)grantRelic();g=Math.round(g*goldMul());S.gold+=g;consTick();stc("fights");stc("gold",g);if(win){stc("wins");misEv("win")}misEv("fight");
+  const opp=curOpp();progAdd(win?40:20,win?100:50);S.pwh=(S.pwh||[]).concat([{p:teamPwr(S.team),w:!!win}]).slice(-30);if(opp.rival&&S.rival){if(win)S.rival.w++;else S.rival.l++;if(win){S.gold+=50;setTimeout(()=>toast(`Rival battu : ${opp.name} ! +50 or`),3000)}}if(win&&opp.boss)grantRelic();g=Math.round(g*goldMul());S.gold+=g;consTick();stc("fights");stc("gold",g);if(win){stc("wins");misEv("win")}misEv("fight");
   S.form=(S.form||[]).concat([{w:!!win,o:opp.name,s:S.season}]).slice(-12);if(win&&Math.random()<.3){const pool=Object.keys(SKILLS).filter(k=>/^k_/.test(SKILLS[k].b)&&!SKILLS[k].ult&&SKILLS[k].r<=Math.min(5,1+Math.floor(S.season/2))),id=pick(pool);S.frag=(S.frag||0)+3;setTimeout(()=>toast("Butin : +3 éclats"),2600)}
-  if(win){S.keys=(S.keys||0)+1+((SRULES[S.rule]||{}).k||0);if(Math.random()<.4){const k=S.season>=4&&Math.random()<.15?"argent":S.season>=2&&Math.random()<.6?"bronze":"bois";S.chests=S.chests||{};S.chests[k]=(S.chests[k]||0)+1;setTimeout(()=>toast(`Butin : ${CHESTS[k].l} !`),3400)}}
-  if(win){S.pts+=3;S.sw++;opp.l++;if(Math.random()<.45+((SRULES[S.rule]||{}).it||0)){const it=makeItem(null,rollRarity((S.season||1)+1));S.items=S.items||[];S.items.push(it);S.lastLoot=it;setTimeout(()=>reveal({it,rar:it.rar,btn:"Ranger dans le coffre"}),350)}}else{S.sl++;opp.w++;opp.pts+=3}
-  const others=S.opps.filter((_,j)=>j!==S.day);
-  for(let q=0;q+1<others.length;q+=2){const a=others[q],b=others[q+1],pa=power(a.team),pb=power(b.team);
+  if(win){const g3=(window._st3?1:0)+((SRULES[S.rule]||{}).k||0);if(g3){S.keys=(S.keys||0)+g3;setTimeout(()=>toast(`+${g3} gemme${g3>1?"s":""}${window._st3?" (victoire 3 étoiles)":""}`),3800)}if(Math.random()<.4){const k=S.season>=4&&Math.random()<.15?"argent":S.season>=2&&Math.random()<.6?"bronze":"bois";S.chests=S.chests||{};S.chests[k]=(S.chests[k]||0)+1;setTimeout(()=>toast(`Butin : ${CHESTS[k].l} !`),3400)}}
+  if(win){S.pts+=3;S.sw++;opp.l++;if(Math.random()<.45+((SRULES[S.rule]||{}).it||0)){const it=makeItem(null,rollRarity(stage()));S.items=S.items||[];S.items.push(it);S.lastLoot=it;setTimeout(()=>reveal({it,rar:it.rar,btn:"Ranger dans le coffre"}),350)}}else{S.sl++;opp.w++;opp.pts+=3}
+  const others=((S.sched||[])[S.day]||[]).filter(p=>p[0]!==0&&p[1]!==0).map(p=>[S.opps[p[0]-1],S.opps[p[1]-1]]);
+  for(const [a,b] of others){if(!a||!b)continue;const pa=power(a.team),pb=power(b.team);
     const [w,l]=Math.random()<pa/(pa+pb)?[a,b]:[b,a];w.w++;w.pts+=3;l.l++}
-  S.day++;if(S.day===3&&S.pts>=6){S.keys=(S.keys||0)+1;S.gold+=50;setTimeout(()=>toast("Objectif de mi-saison atteint : +50 or et 1 gemme"),5600)}S.arena=pick(AKEYS);S.terrain=pick(TKEYS);rollEv();refreshMarket(true);offersTick();S.freeRr=hasStaff("depisteur")?1:0;save();tab="home";if(!silent)render();else render();
+  S.day++;if(S.day===NDAYS/2){S.opps.forEach(o=>o.team.forEach(m=>m.lvl++));setTimeout(()=>toast("Matchs retour : les adversaires se sont renforcés (+1 niveau)"),6400);if(S.pts>=15){S.keys=(S.keys||0)+1;S.gold+=50;setTimeout(()=>toast("Objectif de mi-saison atteint : +50 or et 1 gemme"),5600)}}S.arena=pick(AKEYS);S.terrain=pick(TKEYS);rollEv();refreshMarket(true);offersTick();S.freeRr=hasStaff("depisteur")?1:0;save();tab="home";if(!silent)render();else render();
 }
 load();save();applyOpt();render();setTimeout(titleScreen,50);
 }
