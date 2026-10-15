@@ -777,6 +777,7 @@ body.lowfx *,body.lowfx *::before,body.lowfx *::after{animation-duration:.01ms!i
 .slv{font-size:10px;font-weight:700;color:var(--gild-hi);background:rgba(0,0,0,.35);border-radius:999px;padding:0 6px}
 .chipsrow{display:flex;gap:6px;overflow-x:auto;margin:12px -18px 8px;padding:0 18px;scrollbar-width:none}.chipsrow::-webkit-scrollbar{display:none}
 .dgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-top:8px}.dcard{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 4px;border-radius:10px;background:#120e0b;border:1px solid var(--line);border-top:3px solid var(--rc);text-align:center;min-width:0}.dcard.taken{opacity:.38}.dcard b{font-size:12.5px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dcard em{font-style:normal;font-size:10.5px;color:var(--muted);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.dpw{font-size:10.5px;color:var(--gild-hi)}.dtk{font-size:10.5px;font-weight:700;color:var(--muted)}.dpor{background:none;border:0;padding:0}.dpor img{width:52px;height:52px;border-radius:10px;border:2px solid var(--rc)}.dcard .btn{margin-top:3px;width:100%}.dmine{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:6px 0}.dmine b{font-size:13px;margin-right:4px}.dlog{display:flex;flex-wrap:wrap;gap:4px;margin:4px 0;opacity:.85}
+#tut{position:fixed;inset:0;z-index:300}.tut-hole{position:fixed;border-radius:14px;box-shadow:0 0 0 9999px rgba(8,6,4,.74);border:2px solid var(--gild-hi);pointer-events:none;transition:all .18s}.tut-full{position:fixed;inset:0;background:rgba(8,6,4,.74)}.tut-b{position:fixed;left:12px;right:12px;max-width:460px;margin:0 auto;background:#251c14;border:1px solid var(--gild);border-radius:16px;padding:12px 14px 10px;box-shadow:0 10px 34px rgba(0,0,0,.65)}.tut-k{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--gild-hi)}.tut-b h4{margin:4px 0 4px;font-family:var(--display);font-size:19px;color:var(--fg)}.tut-b p{margin:0 0 10px;font-size:14.5px;line-height:1.4;color:#e6dccb}.tut-r{display:flex;gap:8px;align-items:center}.tut-off{background:none;border:0;padding:4px 0;color:var(--muted);font-size:12.5px;text-decoration:underline}
 .fchip{flex:none;padding:6px 12px;border-radius:999px;font-size:13px;font-weight:700;color:var(--muted);background:#120e0b;border:1px solid var(--line)}
 .fchip.on{color:#14100d;background:linear-gradient(180deg,#efd796,#b8913f);border-color:#f4e2ab}
 .skgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
@@ -3722,7 +3723,7 @@ function nextStep(){const F=fighters(S.team),o=curOpp();
   const free=(S.items||[]).length;if(free)return {t:`${free} objet${free>1?"s":""} dans ton coffre à équiper`,b:"Équiper",a:"equipnext"};
   return {t:`Prêt à affronter ${o?o.name:"l'adversaire"}`,b:"Aller au combat",a:"goleague"}}
 const TUTO={eff:"Ton effectif : tes 5 titulaires en haut, les remplaçants en dessous. Pour placer tes combattants sur la table et régler leurs tactiques, ouvre « Formation ».",home:"Bienvenue au club ! Ici tu vois toujours la prochaine chose à faire et ton prochain match. Le bouton « Jouer » lance le combat.",team:"Voici ta table de stratégie. Touche un combattant pour voir sa fiche et sa tactique. Reste appuyé dessus pour le déplacer.",market:"Recrute des mercenaires et achète de l'équipement ici. Les plus rares sont plus forts.",league:"Ton prochain adversaire et l'arène du jour. Quand ton équipe est prête, lance le combat !"};
-const tutoHtml=t=>S.tuto&&!S.tuto[t]&&TUTO[t]?`<div class="tuto"><p>${TUTO[t]}</p><button class="btn sm" data-a="tuto" data-k="${t}">Compris</button></div>`:"";
+const tutoHtml=t=>false?`<div class="tuto"><p>${TUTO[t]}</p><button class="btn sm" data-a="tuto" data-k="${t}">Compris</button></div>`:"";
 /* ================= MOMENTS FORTS (V4.4) ================= */
 function reveal(o){const ri_=RKEYS.indexOf(o.rar),el=document.createElement("div");el.className="rv r"+ri_;el.style.setProperty("--rc",`var(--r-${o.rar})`);
   const sparks=ri_>=3?Array.from({length:ri_>=5?36:20},(_,k)=>{const a=k/(ri_>=5?36:20)*Math.PI*2,d=120+Math.random()*120;return `<i class="spark" style="--dx:${Math.cos(a)*d}px;--dy:${Math.sin(a)*d}px;animation-delay:${1.1+Math.random()*.2}s"></i>`}).join(""):"";
@@ -3833,7 +3834,7 @@ const GIC={start:'<path d="M5 4v16M5 4h11l-2 4 2 4H5"/>',cls:'<path d="M14 4l6 6
 /* ===== 1.2 Accueil, Club, Menu ===== */
 const MIC={codex:'<path d="M12 3l7 3v6c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"/><path d="M9 12l2 2 4-4"/>',guide:'<path d="M3 5h6a3 3 0 0 1 3 3v12a2 2 0 0 0-2-2H3z"/><path d="M21 5h-6a3 3 0 0 0-3 3v12a2 2 0 0 1 2-2h7z"/>',opts:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',save:'<path d="M5 3h11l3 3v15H5z"/><path d="M8 3v6h8V3M8 21v-7h8v7"/>',chest:'<path d="M3 10h18v10H3z"/><path d="M3 10a9 5 0 0 1 18 0M10 13h4v3h-4z"/>',trophy:'<path d="M8 4h8v5a4 4 0 0 1-8 0z"/><path d="M8 6H5v1a3 3 0 0 0 3 3M16 6h3v1a3 3 0 0 1-3 3M12 13v4M8 20.5h8M9.5 17h5"/>'};
 const lrow=(a,ic,t,d,extra)=>`<button class="lrow" data-a="${a}" ${extra||""}><i class="ic"><svg viewBox="0 0 24 24">${MIC[ic]}</svg></i><span><b>${t}</b><em>${d}</em></span><i class="chev">›</i></button>`;
-function openMenu(){openPlain(`<h2>Menu</h2><div class="card flat">${lrow("m-guide","guide","Guide du jeu","Classes, rareté, tactiques, terrains, combat")}${lrow("m-heroes","codex","Album des héros","100 héros nommés à collectionner · paliers en gemmes")}${lrow("m-codex","codex","Codex des classes","Rôles, statistiques, croissance et évolutions")}${lrow("m-stats","chest","Statistiques et succès","Chiffres du club, 24 succès, derniers combats")}${lrow("m-opts","opts","Réglages","Son, affichage du combat, qualité graphique")}${lrow("m-saves","save","Sauvegardes et clubs","3 emplacements · changer de club ou en fonder un")}</div>`)}
+function openMenu(){openPlain(`<h2>Menu</h2><div class="card flat">${lrow("m-guide","guide","Guide du jeu","Classes, rareté, tactiques, terrains, combat")}${lrow("m-heroes","codex","Album des héros","100 héros nommés à collectionner · paliers en gemmes")}${lrow("m-codex","codex","Codex des classes","Rôles, statistiques, croissance et évolutions")}${lrow("m-stats","chest","Statistiques et succès","Chiffres du club, 24 succès, derniers combats")}${lrow("tuthelp","guide","Aide de cet écran","Relance le tutoriel de l'écran où tu étais")}${lrow("m-opts","opts","Réglages","Son, affichage du combat, qualité graphique")}${lrow("m-saves","save","Sauvegardes et clubs","3 emplacements · changer de club ou en fonder un")}</div>`)}
 function applyOpt(){const b=document.body;b.classList.toggle("txl",!!OPT.txl);b.classList.toggle("dense",!!OPT.dense);b.classList.toggle("lowfx",!!OPT.lowfx)}
 const tog=(k,l,d,on)=>`<label class="tgl"><span><b>${l}</b>${d?`<em>${d}</em>`:""}</span><input type="checkbox" ${k} ${on?"checked":""}><i></i></label>`;
 function settingsHtml(){return `<h2>Réglages</h2>
@@ -3841,6 +3842,7 @@ function settingsHtml(){return `<h2>Réglages</h2>
   <div class="card flat"><div class="kicker">Affichage</div>${tog('data-opt="dense" id="set-dense"',"Affichage compact","Moins d'espace entre les blocs : plus d'infos à l'écran",!!OPT.dense)}${tog('data-opt="txl" id="set-txl"',"Texte plus grand","Agrandit toute l'interface de 10 %",OPT.txl)}${tog('data-opt="lowfx" id="set-lowfx"',"Animations réduites","Moins de mouvements dans les menus",OPT.lowfx)}</div>
   <details class="card flat det"><summary>Combat · réglages avancés</summary>${optsHtml("set")}</details>
   <div class="card flat"><div class="kicker">Difficulté</div><div class="seg" style="margin-top:6px">${DIFFS.map(([k,l],j)=>`<button aria-pressed="${(S.diff||"normal")===k}" data-a="diff" data-v="${k}" ${!S.test&&j>DIFFS.findIndex(x=>x[0]===(S.diff||"normal"))?"disabled":""}>${l}</button>`).join("")}</div><p class="hint" style="margin:8px 0 0">${DIFFS.find(x=>x[0]===(S.diff||"normal"))[3]} Choisie à la fondation du club : on peut seulement la baisser. S'applique à la saison suivante.</p></div>
+  <div class="card flat"><div class="kicker">Tutoriel</div><p class="hint" style="margin:4px 0 8px">Un guide s'affiche la première fois que tu ouvres chaque écran. Tu peux le couper écran par écran, ou partout.</p><div class="row" style="gap:8px"><button class="btn" style="flex:1" data-a="tutoff">${S.tutOff?"Réactiver le tutoriel":"Couper partout"}</button><button class="btn" style="flex:1" data-a="tutreset">Tout revoir</button></div></div>
   <div class="card flat"><div class="kicker">Partie</div><button class="btn big" data-a="testmode" style="margin-top:8px">${S.test?"Désactiver le mode administrateur":"Mode administrateur (tout illimité)"}</button><div class="row" style="gap:8px;margin-top:8px"><button class="btn" style="flex:1" data-a="exp">Exporter</button><button class="btn" style="flex:1" data-a="imp">Importer</button></div><button class="btn big" style="margin-top:8px" data-a="reset">Recommencer ce club</button></div>
   <p class="hint" style="text-align:center;margin:4px 0 0">Club de l'Arène · version 3.0</p>`}
 /* ===== 2.1 Effectif ===== */
@@ -4367,6 +4369,101 @@ function testFill(){if(!S||!S.test)return;S.gold=Math.max(S.gold||0,999999);S.ke
 function testOn(){S.testBak={gold:S.gold||0,keys:S.keys||0,frag:S.frag||0,awk:S.awk||0,chests:Object.assign({},S.chests||{}),shards:Object.assign({},S.shards||{})};S.test=true;testFill()}
 function testOff(){const B=S.testBak;S.test=false;if(B){TRES.forEach(k=>S[k]=B[k]);S.chests=B.chests;S.shards=B.shards;delete S.testBak}S.freeRr=0}
 const SUBT={club:"bat",market:"rec"},SUBL={club:[["bat","Bâtiments"],["staff","Personnel"],["pal","Palmarès"]],market:[["rec","Recrues"],["ch","Coffres"],["shop","Boutique"]]};
+/* ===== V32 · Tutoriel interactif par écran : se lance à la 1re visite, désactivable écran par écran ===== */
+const TUT={
+ home:{t:"Accueil",st:[
+  {h:"Bienvenue au club !",d:"Ce guide t'explique chaque écran la première fois que tu l'ouvres. « Ne plus afficher ici » le coupe pour cet écran seulement : les autres écrans gardent le leur. Tu peux le relancer depuis le Menu (☰ › Aide de cet écran)."},
+  {s:".card.guide",h:"Parcours du débutant",d:"3 étapes pour bien démarrer, avec une récompense à chaque fois."},
+  {s:".hm-next",h:"Ton prochain match",d:"Ton adversaire du jour, l'arène et tes chances estimées. Touche « Jouer » quand ton équipe est prête : le combat se joue tout seul, selon la tactique de tes héros."},
+  {s:".card.today",h:"Aujourd'hui",d:"Les missions du jour (or et gemmes) et les conseils utiles : recrue intéressante, objet à équiper, chantier possible…"},
+  {s:".tiles",h:"Ta saison",d:"18 journées contre 9 clubs, en matchs aller et retour. Termine dans les 2 premiers pour monter de division. Les 2 derniers descendent."},
+  {s:".coin",h:"Tes monnaies",d:"L'or sert à tout : recrues, entraînement, compétences, bâtiments. Les gemmes servent aux évolutions, à l'éveil et aux coffres spéciaux. Les éclats améliorent les objets. Touche ici pour le détail."},
+  {s:"nav",h:"Les onglets",d:"Accueil, Matchs (calendrier, coupe, modes), Effectif (tes héros), Club (bâtiments, personnel) et Marché (recrues, coffres, objets)."}]},
+ league:{t:"Matchs",st:[
+  {s:".opp",h:"Le prochain adversaire",d:"Ses combattants, son style de jeu et son point faible. Touche un adversaire pour voir sa fiche."},
+  {s:".arpill",h:"L'arène du jour",d:"Le terrain et l'arène changent à chaque journée et modifient le combat (soins, vitesse, pièges…)."},
+  {s:"#view [data-a=fight]",h:"Lancer le combat",d:"Victoire : 3 points et de l'or. Défaite : un peu d'or quand même. Une victoire sans perte et rapide (3 étoiles) rapporte une gemme."},
+  {s:".card.pass",h:"Passe de saison",d:"Chaque match remplit le passe : un palier par victoire. Récupère les récompenses (or, gemmes, coffres). Il repart à zéro à chaque saison."},
+  {s:".cuprow",h:"La coupe",d:"16 clubs, élimination directe aux journées 4, 8, 12 et 16. Une défaite et c'est fini jusqu'à la saison suivante."},
+  {s:".modeg",h:"Autres modes",d:"Porte de fer, Draft, Défi fantôme, Match d'académie : de l'or, de l'XP et des gemmes en plus."},
+  {s:"#view table",h:"Le classement",d:"Les 2 premiers montent, les 2 derniers descendent. Les « Favoris » sont les clubs les plus forts de ta division : il faudra les battre pour monter."}]},
+ team:{t:"Effectif",st:[
+  {s:"#view .seg",h:"Effectif et Formation",d:"« Effectif » liste tes héros. « Formation » permet de les placer sur la grille (devant, derrière) et de voir les synergies."},
+  {s:".starters",h:"Tes 5 titulaires",d:"Ce sont eux qui combattent. Touche un héros pour ouvrir sa fiche : statistiques, compétences, équipement, entraînement, évolution."},
+  {s:".benchg",h:"Les remplaçants",d:"Ils remplacent les blessés et gagnent un peu d'XP. Le Siège (onglet Club) agrandit l'effectif."},
+  {s:"#efftbl",h:"Tout l'effectif",d:"Filtre et trie tes héros par rareté, classe ou état."}]},
+ team_form:{t:"Formation",st:[
+  {h:"La formation",d:"Place tes titulaires sur la grille : les tanks devant, les tireurs et soigneurs derrière. Reste appuyé sur un héros pour le déplacer. Certaines positions créent des synergies (Rempart, Tir croisé…)."}]},
+ club_bat:{t:"Club",st:[
+  {s:".clv",h:"Niveau du club",d:"Il monte avec chaque match, rapporte de l'or et des gemmes, et débloque de nouvelles fonctions."},
+  {s:"#view .subp:not([hidden]) .card",h:"Les bâtiments",d:"Chaque bâtiment donne un bonus permanent. Le Bureau de recrutement augmente les chances d'avoir des héros épiques et légendaires, puis débloque les mythiques (niv. 3) et les divins (niv. 5). Un seul chantier à la fois."}]},
+ club_staff:{t:"Personnel",st:[
+  {s:"#view .subp:not([hidden]) .card",h:"Le personnel",d:"Embauche un entraîneur (XP), un médecin (blessures), un dépisteur (marché) ou un intendant (or). Il faut des postes : agrandis la Maison du club."}]},
+ club_pal:{t:"Palmarès",st:[
+  {h:"Palmarès et collection",d:"Ton historique de saisons, l'album des 100 héros nommés (3 gemmes tous les 10 découverts), l'armurerie et les légendes du club."}]},
+ market_rec:{t:"Recrues",st:[
+  {s:"#view .subp:not([hidden]) .list",h:"Le marché aux mercenaires",d:"Les recrues du moment. La couleur indique la rareté : gris commun, vert peu commun, bleu rare, violet épique, or légendaire. Plus c'est rare, plus il a de compétences et de qualités."},
+  {s:"#view [data-a=reroll]",h:"Nouvelles recrues",d:"Relancer coûte de l'or, un peu plus à chaque fois dans la même journée. Le marché se renouvelle aussi après chaque match."},
+  {h:"Bien recruter",d:"Regarde les notes (C à S) et le potentiel ★ : un héros bien noté progresse plus vite. Les héros nommés sont uniques et peuvent former des duos."}]},
+ market_ch:{t:"Coffres",st:[
+  {s:"#view .subp:not([hidden]) .card",h:"Les coffres",d:"Ils donnent un héros ou un objet. Ceux en or s'achètent avec de l'or ; le coffre de classe et le coffre divin coûtent des gemmes mais sont bien meilleurs. Une garantie donne un butin épique ou mieux au bout de quelques ouvertures."}]},
+ market_shop:{t:"Boutique",st:[
+  {s:"#view .subp:not([hidden]) .section",h:"La boutique",d:"Des objets pour équiper tes héros (arme, armure, accessoire). Améliore-les ensuite avec de l'or et des éclats."}]},
+ fiche_ap:{t:"Fiche du héros",st:[
+  {s:"#sheet .fh",h:"La fiche du héros",d:"Nom, classe, rareté et niveau de ton combattant."},
+  {s:"#sheet .fseg",h:"Trois onglets",d:"Aperçu, Compétences et Carrière."},
+  {s:"#sheet .rollc",h:"Le tirage",d:"Notes de C à S en PV, attaque et vitesse, et le potentiel ★ qui accélère sa progression."},
+  {s:"#sheet [data-a=profiles]",h:"La tactique",d:"Comment il se bat : qui il cible, comment il se déplace, quand il lance ses compétences. « Automatique » convient pour commencer."},
+  {s:"#sheet .fi-acts",h:"Entraîner et vendre",d:"« Niv+ » lui fait gagner un niveau contre de l'or : une fois par journée et par héros, de plus en plus cher. Tu peux aussi le vendre."},
+  {h:"Évolution et éveil",d:"Aux niveaux 5, 10 et 15, un héros peut évoluer (or + gemmes) : il devient plus fort et gagne un emplacement de compétence. L'éveil ajoute des étoiles (+4 % de stats chacune)."}]},
+ fiche_sk:{t:"Compétences",st:[
+  {h:"Ses compétences",d:"Les compétences équipées et leur niveau. Ouvre le grimoire pour en apprendre de nouvelles et les améliorer."}]},
+ fiche_car:{t:"Carrière",st:[{h:"Sa carrière",d:"Matchs, victoires, K.O., titres gagnés et derniers combats de ce héros."}]},
+ grimoire:{t:"Grimoire",st:[
+  {s:"#sheet .skslots",h:"Les emplacements",d:"Le nombre de compétences équipées en même temps. Il augmente avec le niveau (3 et 8) et avec l'évolution."},
+  {s:"#sheet .skpts",h:"Les points",d:"Chaque niveau gagné donne 1 point pour améliorer une compétence apprise, jusqu'au niveau 5."},
+  {s:"#sheet .skgrid",h:"Apprendre",d:"Touche une compétence pour la voir. L'apprendre coûte de l'or selon son rang (I à V), le double hors de la famille de sa classe. La rareté du héros limite le rang maximum."},
+  {s:"#sheet .grim-acts",h:"Raccourcis",d:"« Suggestion automatique » équipe les meilleures compétences connues. « Rendre les points » permet de les redistribuer."}]},
+ herosheet:{t:"Fiche",st:[{h:"Fiche d'un héros",d:"Ses statistiques, compétences et qualités. Au marché, compare-le à tes titulaires avant de l'acheter."}]},
+ tactique:{t:"Tactique",st:[{h:"La tactique",d:"Choisis un profil prêt à l'emploi (Garde du corps, Tireur d'élite…) ou « Personnaliser » pour régler chaque règle à la main."}]},
+ draft:{t:"Draft",st:[{h:"La Draft",d:"Un tournoi à 8 équipes avec des héros prêtés. Choisis le format (2 à 5 joueurs par équipe), puis compose ton équipe. Ton effectif n'est pas touché."}]},
+ draftpick:{t:"Draft",st:[
+  {s:"#sheet .dgrid",h:"Le réservoir de héros",d:"Tous les héros disponibles. Quand c'est ton tour, touche « Choisir ». Les autres équipes choisissent tout de suite, en serpent : la dernière à choisir au tour 1 choisit la première au tour 2."},
+  {s:"#sheet .chipsrow",h:"Filtres",d:"Filtre par classe pour trouver vite un soigneur ou un tank."},
+  {s:"#sheet .dmine",h:"Ton équipe",d:"Tes choix s'affichent ici. Pense à l'équilibre : un tank, des dégâts, du soin."}]},
+ draftbr:{t:"Draft",st:[{h:"Le tableau",d:"Quarts, demies, finale : une défaite et c'est terminé. Plus tu vas loin, plus la récompense est grosse."}]},
+ gate:{t:"Porte de fer",st:[{h:"La Porte de fer",d:"Enchaîne des étages de plus en plus durs. De l'or à chaque étage, une gemme tous les 3 étages et des coffres aux étages 5, 10 et 15. Une tentative toutes les 3 journées."}]},
+ combat:{t:"Combat",st:[
+  {s:"#arena .stage",h:"Le combat",d:"Tes héros se battent seuls selon leur tactique. En haut : la vie et le moral de chaque équipe. Touche un combattant pour voir ce qu'il fait."},
+  {s:"#spd",h:"Vitesse",d:"Accélère ou ralentis le combat."},
+  {s:"#shout",h:"Cri de guerre",d:"Une fois par match : +20 % d'attaque et +12 % de vitesse pendant 6 secondes. Garde-le pour le bon moment !"},
+  {s:"#skip",h:"Passer",d:"Affiche directement le résultat du combat."}]}
+};
+let TUTS=null,TUTLAST="home";const TSKIP=new Set();
+function tutVis(sel){if(!sel)return null;return [...document.querySelectorAll(sel)].find(e=>{const r=e.getBoundingClientRect();return e.offsetParent!==null&&r.height>4&&r.width>4})||null}
+function tutCheck(k){if(!S||S.tutOff||!TUT[k]||TSKIP.has(k)||(S.tut2||{})[k])return;if(document.querySelector(".ttl-scr,.rv,.cha"))return;if(TUTS&&TUTS.k===k)return;clearTimeout(tutCheck.t);tutCheck.t=setTimeout(()=>{if(!(S.tut2||{})[k]&&!TSKIP.has(k))tutStart(k)},450)}
+function tutStart(k){const T=TUT[k];if(!T)return;tutClose();TUTS={k,i:0,st:T.st};if(k==="combat"){const p=$("pause");if(p&&/Pause/.test(p.textContent)){p.click();TUTS.pz=1}}tutDraw()}
+function tutClose(){const o=document.getElementById("tut");if(o)o.remove();if(TUTS&&TUTS.pz){const p=$("pause");if(p&&!/Pause/.test(p.textContent))p.click()}TUTS=null}
+function tutDraw(){const o0=document.getElementById("tut");if(o0)o0.remove();if(!TUTS)return;const st=TUTS.st[TUTS.i],el=tutVis(st.s),n=TUTS.st.length,last=TUTS.i>=n-1;
+  const o=document.createElement("div");o.id="tut";document.body.appendChild(o);
+  const bubble=`<div class="tut-b"><div class="tut-k">${TUT[TUTS.k].t} · ${TUTS.i+1}/${n}</div><h4>${st.h}</h4><p>${st.d}</p><div class="tut-r"><button class="tut-off" data-tu="off">Ne plus afficher ici</button><span style="flex:1"></span>${last?"":`<button class="btn sm" data-tu="later">Plus tard</button>`}<button class="btn sm main" data-tu="next">${last?"J'ai compris":"Suivant"}</button></div></div>`;
+  const place=()=>{if(!TUTS)return;let r=el&&el.getBoundingClientRect();const H=innerHeight;o.innerHTML=(r?`<div class="tut-hole" style="left:${Math.max(4,r.left-6)}px;top:${Math.max(4,r.top-6)}px;width:${Math.min(innerWidth-8,r.width+12)}px;height:${Math.min(H-8,r.height+12)}px"></div>`:`<div class="tut-full"></div>`)+bubble;
+    const b=o.querySelector(".tut-b"),bh=b.offsetHeight;if(!r){b.style.top=Math.max(16,(H-bh)/2)+"px"}else{const below=r.bottom+14,above=r.top-14-bh;b.style.top=(below+bh<H-8?below:above>8?above:Math.max(8,H-bh-8))+"px"}};
+  if(el){el.scrollIntoView({block:"center",behavior:"instant"});setTimeout(place,60)}else place()}
+document.addEventListener("click",e=>{const b=e.target.closest("#tut [data-tu]");if(!b){if(e.target.closest("#tut")){e.stopPropagation();e.preventDefault()}return}e.stopPropagation();e.preventDefault();if(!TUTS)return;const k=TUTS.k,a=b.dataset.tu;
+  if(a==="next"){TUTS.i++;if(TUTS.i>=TUTS.st.length){S.tut2=S.tut2||{};S.tut2[k]=1;save();tutClose()}else tutDraw()}
+  else if(a==="later"){TSKIP.add(k);tutClose()}
+  else if(a==="off"){S.tut2=S.tut2||{};S.tut2[k]=1;save();tutClose();toast("Tutoriel coupé pour cet écran (Réglages pour tout revoir)")}},true);
+addEventListener("resize",()=>{if(TUTS)tutDraw()});
+function tutViewKey(){const vv=document.querySelector("#view .seg [data-a=effv][aria-pressed=true]");if(tab==="team"&&vv&&/Formation/.test(vv.textContent))return "team_form";return tab==="club"||tab==="market"?tab+"_"+SUBT[tab]:tab}
+function tutAuto(){if(!S)return;const sh=$("sheet"),ar=$("arena");if(ar&&!ar.hidden)return;if(sh&&!sh.hidden)return tutSheet();const k=tutViewKey();TUTLAST=k;tutCheck(k)}
+function tutSheetKey(){const s=document.querySelector("#sheet .sheet");if(!s)return null;const al=s.getAttribute("aria-label")||"",h=(s.querySelector("h2")||{}).textContent||"";
+  if(s.classList.contains("grim"))return "grimoire";if(s.querySelector(".fseg")){const p=s.querySelector(".fseg [aria-pressed=true]");return "fiche_"+(p?p.dataset.v:"ap")}
+  if(/^Fiche de/.test(al))return "herosheet";if(/^Profil de/.test(al))return "tactique";
+  if(/^Draft/.test(h))return s.querySelector(".dgrid")?"draftpick":/Draft ·/.test(h)?"draftbr":"draft";if(/^Porte de fer/.test(h))return "gate";return null}
+function tutSheet(){const k=tutSheetKey();if(k){TUTLAST=k;tutCheck(k)}}
+try{new MutationObserver(()=>{if(!$("sheet").hidden)setTimeout(tutSheet,30)}).observe(document.getElementById("sheet"),{childList:true})}catch(e){}
+
 function subSeg(k){return `<div class="seg subseg" data-sk="${k}">${SUBL[k].map(([v,l])=>`<button data-a="subt" data-k="${k}" data-v="${v}" aria-pressed="${SUBT[k]===v}">${l}${k==="market"&&v==="ch"&&(S.keys||0)>0?' <i class="sdot"></i>':""}${k==="club"&&v==="bat"&&S.team.some(m=>m.inj)?' <i class="sdot red"></i>':""}</button>`).join("")}</div>`}
 function applySub(k){document.querySelectorAll("#view .subp").forEach(p=>p.hidden=p.dataset.sp!==SUBT[k])}
 /* ===== 20.6 Album des héros (dans le Club) ===== */
@@ -4438,6 +4535,7 @@ function guideHtml(){
 }
 const TSCR={};
 function render(){
+  setTimeout(()=>{try{tutAuto()}catch(e){}},0);
   {const fb=$("fab");if(fb){const F_=fighters(S.team);fb.hidden=tab==="home"||tab==="league"||!(S.day<NDAYS)||!F_.length;fb.innerHTML=`<svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg><span>Jouer</span>`}}
   {const vv=$("view");if(render._t!==tab){vv.classList.remove("vin");void vv.offsetWidth;vv.classList.add("vin");render._t=tab}}
   header();{const ck=JSON.stringify(S.club)+JSON.stringify(crestOrn());if($("crest").dataset.k!==ck){$("crest").dataset.k=ck;$("crest").innerHTML=clubCrest();$("brand").textContent=CLUB}}if(!$("coinic").innerHTML){$("coinic").innerHTML=COIN;document.querySelectorAll("svg.nvi").forEach(s=>s.innerHTML=NAVIC[s.dataset.ic])}
@@ -4836,6 +4934,9 @@ document.addEventListener("click",e=>{
   if(a==="gomarket"){tab="market";render();$("view").scrollTop=0;return}
   if(a==="goleague"){tab="league";render();$("view").scrollTop=0;return}
   if(a==="equipnext"){const it=(S.items||[])[0];if(!it)return;const j=S.team.findIndex(m=>m.slot&&!(m.gear&&m.gear[it.s]));openGear(j>=0?j:0,it.s);return}
+  if(a==="tuthelp"){const k=TUTLAST;$("sheet").hidden=true;try{NAV.length=0}catch(e){}render();setTimeout(()=>tutStart(k),200);return}
+  if(a==="tutoff"){S.tutOff=!S.tutOff;save();openPlain(settingsHtml());toast(S.tutOff?"Tutoriel coupé partout":"Tutoriel réactivé");return}
+  if(a==="tutreset"){S.tut2={};S.tutOff=false;TSKIP.clear();save();openPlain(settingsHtml());toast("Tous les tutoriels seront revus");return}
   if(a==="tuto"){S.tuto=S.tuto||{};S.tuto[b.dataset.k]=1;save();render();return}
   if(a==="gequip"){const m=S.team[i],it=S.items.find(x=>x.id===b.dataset.g);if(!it)return;m.gear=m.gear||{};const old=m.gear[it.s];S.items=S.items.filter(x=>x!==it);if(old)S.items.push(old);m.gear[it.s]=it;save();sfxUI("equip");toast(`${it.n} équipé`);openGear(i,it.s);render();return}
   if(a==="gunequip"){const m=S.team[i],sl=b.dataset.s,it=m.gear&&m.gear[sl];if(it){S.items.push(it);m.gear[sl]=null;save();toast(`${it.n} rangé au coffre`)}openGear(i,sl);render();return}
@@ -5000,7 +5101,7 @@ function play(F,isReplay,opts){
     <div class="stage" id="stage"><canvas id="cv"></canvas><div class="banner" id="banner"></div><div class="ticker" id="ticker"></div><div class="announce" id="ann"></div><div class="ucard" id="ucard" hidden></div><div class="optpanel" id="optp" hidden><b>Options d'affichage</b>${optsHtml("fopt")}<button class="btn" id="optclose">Fermer</button></div></div>
     <div class="minis" id="minis"></div>
     <div class="ctrl"><button class="btn" id="pause">Pause</button><button class="btn" id="spd">×${String(speed).replace(".",",")}</button><button class="btn" id="lines" aria-pressed="${showLines}">Cibles</button><button class="btn" id="snd" aria-pressed="${SND.on}">Son</button><button class="btn" id="shout" title="Une fois par match : attaque +20 % et vitesse +12 % pendant 6 s">Cri !</button><button class="btn main" id="skip">Passer</button></div>`;
-  ar.hidden=false;
+  ar.hidden=false;if(!isReplay)setTimeout(()=>{try{tutCheck("combat")}catch(e){}},900);
   const stage=$("stage"),cv=$("cv"),ctx=cv.getContext("2d",{alpha:false});
   const WX=AW+5,WY=AH+4.6,BGS=32;
   let cw=0,ch=0,dpr=1,fitS=1,bg=null;const cam={x:0,y:.2,z:1};
