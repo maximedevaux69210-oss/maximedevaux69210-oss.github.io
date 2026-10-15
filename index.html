@@ -849,7 +849,7 @@ body.lowfx *,body.lowfx *::before,body.lowfx *::after{animation-duration:.01ms!i
 .cons svg{width:22px;height:22px;fill:none;stroke:var(--mana);stroke-width:1.8}
 .cons b{display:block;font-size:13px}.cons em{font-style:normal;font-size:12px;color:var(--muted)}
 .badge.red{background:rgba(230,80,80,.18);color:#ff8b8b}
-.injb{position:absolute;top:4px;right:4px;background:#d84a4a;color:#fff;font-size:10px;font-weight:700;border-radius:6px;padding:1px 5px}
+.cell.hurt img,.bcard.hurt img{filter:grayscale(.8) brightness(.8)}.injb{position:absolute;top:4px;right:4px;background:#d84a4a;color:#fff;font-size:10px;font-weight:700;border-radius:6px;padding:1px 5px}
 .bcard{position:relative}
 .fgrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 @keyframes pulse{50%{opacity:.35}}
@@ -2039,7 +2039,7 @@ function curOppIdx(d){const P=(S.sched||[])[d==null?S.day:d];if(!P)return -1;con
 function curOpp(){const i=curOppIdx();return i>=0?S.opps[i]:null}
 function retierClubs(){const d=divOf(),C=divClubs(d),ord=[...S.opps].sort((a,b)=>b.pts-a.pts||b.w-a.w);ord.forEach((o,i)=>{const c=C.find(x=>x.id===o.cid);if(!c)return;c.hist.push({s:S.season,r:i+1});c.tier=i<2?2:i>=6?0:1})}
 function fixTeam(){
-  ["0","1","2"].forEach(()=>{});
+  S.team.forEach(m=>{if(m.inj&&m.slot){const s=m.slot;m.slot=null;if(!S.team.some(x=>x.slot===s)){const b=S.team.filter(x=>!x.slot&&!x.inj&&x!==m).sort((a,c)=>power([c])-power([a]))[0];if(b)b.slot=s}}});
   const seen=new Set();S.team.forEach(m=>{if(m.slot&&(seen.has(m.slot)||seen.size>=5))m.slot=null;if(m.slot)seen.add(m.slot)});
   S.team.forEach(m=>{if(!m.rules)m.rules=defRules();if(!m.profile)m.profile=JSON.stringify(m.rules)===JSON.stringify(defRules())?"auto":"custom";if(m.rules.ally&&!S.team.some(x=>x.id===m.rules.ally)){m.rules.ally=null;if(m.rules.soutien==="proteger"||m.rules.soutien==="soutenir")m.rules.soutien="aucun"}});
   if(!S.team.some(m=>m.id===S.captain))S.captain=(fighters(S.team)[0]||S.team[0]||{}).id||null;
@@ -3712,7 +3712,7 @@ function startOdds(){const el=$("odds");if(!el||S.day>=NDAYS)return;const key=od
 function showOdds(p){const el=$("odds");if(!el)return;const pc=Math.round(p*100),c=pc>=65?"var(--heal)":pc>=40?"var(--gild-hi)":"var(--blood)";
   el.innerHTML=`<span>Tes chances estimées</span><i><b style="width:${pc}%;background:${c}"></b></i><em style="color:${c}">${pc} %</em>`}
 /* Équipe conseillée */
-function adviseTeam(){const T=S.team;if(!T.length)return;const sorted=[...T].sort((a,b)=>pwr(b)-pwr(a));let pick5=sorted.slice(0,5);
+function adviseTeam(){const T=S.team;if(!T.length)return;const sorted=T.filter(m=>!m.inj).sort((a,b)=>pwr(b)-pwr(a));let pick5=sorted.slice(0,5);
   if(!pick5.some(m=>!RANGED.has(m.cls)&&m.cls!=="assassin")){const t=sorted.find(m=>!RANGED.has(m.cls)&&m.cls!=="assassin");if(t)pick5[4]=t}
   T.forEach(m=>m.slot=null);formation5(pick5);fixTeam();save()}
 /* Prochaine étape */
@@ -3856,9 +3856,9 @@ function starterCard(m){const t=stats(m),i=S.team.indexOf(m);ensureSkills(m);
     <span class="sc-st"><span>${sic("hp")}${Math.round(t.hp*HPX)}</span><span>${sic("atk")}${t.atk}</span><span>${sic("spd")}${t.spd}</span><span>${sic("pw")}${pwr(m)}</span></span>
     <span class="sc-sk">${["sig",...m.skills.eq].map(id=>skIcon(id)).join("")}</span><span class="sc-pos">${slotL(m)}</span></button>`}
 function effHtml(){const F=fighters(S.team).sort((a,b)=>a.slot.localeCompare(b.slot)),B=benchOf(S.team);let h=effSeg()+tutoHtml("eff");
-  h+=`<div class="card-h"><h3 class="h3g">Titulaires</h3><span class="badge">${F.length}/5</span></div><div class="starters">${F.map(starterCard).join("")}${Array.from({length:Math.max(0,5-F.length)},()=>`<button class="scard empty" data-a="effv" data-v="form"><span class="sc-art"><svg viewBox="0 0 24 24" class="sil"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8z"/></svg></span><b class="sc-n">Place libre</b><span class="sc-c">Ouvre la Formation</span></button>`).join("")}</div>`;
+  h+=`<div class="card-h"><h3 class="h3g">Titulaires</h3><span class="badge">${F.length}/5${S.team.some(m=>m.inj)?` · ${S.team.filter(m=>m.inj).length} blessé${S.team.filter(m=>m.inj).length>1?"s":""}`:""}</span></div><div class="starters">${F.map(starterCard).join("")}${Array.from({length:Math.max(0,5-F.length)},()=>`<button class="scard empty" data-a="effv" data-v="form"><span class="sc-art"><svg viewBox="0 0 24 24" class="sil"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8z"/></svg></span><b class="sc-n">Place libre</b><span class="sc-c">Ouvre la Formation</span></button>`).join("")}</div>`;
   const free=maxTeam()-S.team.length;
-  h+=`<div class="card-h" style="margin-top:14px"><h3 class="h3g">Remplaçants</h3><span class="badge">${B.length}</span></div><div class="benchg">${B.map(m=>`<button class="bcard" ${rv(m)} data-a="fiche" data-i="${S.team.indexOf(m)}"><img src="${spriteUrl(m,0)}" alt="">${m.inj?`<span class="injb">Blessé ${m.inj}</span>`:""}<b>${fn(m)}</b><em>Niv ${m.lvl}</em></button>`).join("")}${Array.from({length:free},()=>`<button class="bcard empty" data-a="gomarket"><svg viewBox="0 0 24 24" class="sil"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8z"/></svg><b>Vide</b><em>Recruter</em></button>`).join("")}</div>
+  h+=`<div class="card-h" style="margin-top:14px"><h3 class="h3g">Remplaçants</h3><span class="badge">${B.length}</span></div><div class="benchg">${B.map(m=>`<button class="bcard${m.inj?" hurt":""}" ${rv(m)} data-a="fiche" data-i="${S.team.indexOf(m)}"><img src="${spriteUrl(m,0)}" alt="">${m.inj?`<span class="injb">Blessé ${m.inj}</span>`:""}<b>${fn(m)}</b><em>Niv ${m.lvl}</em></button>`).join("")}${Array.from({length:free},()=>`<button class="bcard empty" data-a="gomarket"><svg viewBox="0 0 24 24" class="sil"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-8 8-8s8 3.6 8 8z"/></svg><b>Vide</b><em>Recruter</em></button>`).join("")}</div>
     <p class="hint" style="margin:8px 2px 0">Effectif ${S.team.length}/${maxTeam()}. Touche un combattant pour ouvrir sa fiche.</p>`;
   if(S.team.length){h+=`<div class="card-h" style="margin-top:18px"><h3 class="h3g">Tout l'effectif</h3><span class="badge">${S.team.length}</span></div>
     <div class="lfilt"><input id="eff-q" type="search" placeholder="Rechercher un nom…" value="${effF.q.replace(/"/g,"&quot;")}" autocomplete="off">
@@ -4535,6 +4535,7 @@ function guideHtml(){
 }
 const TSCR={};
 function render(){
+  if(S&&S.team&&S.team.some(m=>m.inj&&m.slot))fixTeam();
   setTimeout(()=>{try{tutAuto()}catch(e){}},0);
   {const fb=$("fab");if(fb){const F_=fighters(S.team);fb.hidden=tab==="home"||tab==="league"||!(S.day<NDAYS)||!F_.length;fb.innerHTML=`<svg viewBox="0 0 24 24"><path d="M7 4l13 8-13 8z"/></svg><span>Jouer</span>`}}
   {const vv=$("view");if(render._t!==tab){vv.classList.remove("vin");void vv.offsetWidth;vv.classList.add("vin");render._t=tab}}
@@ -4552,7 +4553,7 @@ function render(){
         <div class="tool-r2"><button class="btn sm${showAllTac?" on":""}" data-a="alltac">${showAllTac?"Toutes les tactiques":"Tactique du choisi"}</button><button class="btn sm qb" data-a="legend" aria-label="Légende">?</button></div></div>
       ${showLegend?`<p class="ab-leg"><b style="color:#f0b43a">Flèche dorée</b> : déplacement (pâle = automatique) · <b style="color:#f0b43a">cercle doré</b> : tient sa position · <b style="color:#6cbf7a">ligne verte</b> : protège · <b style="color:#7fc8ff">pointillés bleus</b> : soutient · <b style="color:#7fc8ff">cercle bleu</b> : reste groupé · <b style="color:#ffd27a">✦</b> : synergie active. <b>Touche</b> un combattant pour sa fiche, <b>reste appuyé</b> pour le déplacer.</p>`:""}
       <div class="board">${boardVis(S.team,{live:true,only:showAllTac?null:(selId||-1),syn:synIds})}
-        <div class="benchzone" data-bench="1"><div class="glab">Banc</div><div class="benchrow">${B.map(m=>`<button class="cell on mini" ${rv(m)} data-dr="${m.id}"><img class="spr" src="${spriteUrl(m,0)}" alt=""><span>${fn(m)}</span></button>`).join("")}${!B.length?'<em class="empty-b">Glisse un combattant ici</em>':""}</div></div>
+        <div class="benchzone" data-bench="1"><div class="glab">Banc</div><div class="benchrow">${B.map(m=>`<button class="cell on mini${m.inj?" hurt":""}" ${rv(m)} data-dr="${m.id}" style="position:relative"><img class="spr" src="${spriteUrl(m,0)}" alt=""><span>${fn(m)}</span>${m.inj?`<span class="injb">Blessé ${m.inj}</span>`:""}</button>`).join("")}${!B.length?'<em class="empty-b">Glisse un combattant ici</em>':""}</div></div>
       </div>
       ${roleBar(F)}
       ${syn.length?`<details class="synchip"><summary><b>✦ ${syn.length} synergie${syn.length>1?"s":""} active${syn.length>1?"s":""}</b></summary>${syn.map(s=>`<p><b>${s.l}</b> : ${s.d}</p>`).join("")}</details>`:`<p class="hint" style="margin:8px 2px">Aucune synergie. Essaie un tank devant un tireur, deux tireurs côte à côte, un barde au milieu ou un clerc à l'arrière.</p>`}
@@ -4819,6 +4820,7 @@ document.addEventListener("pointerup",e=>{if(!drag)return;clearTimeout(drag.time
   if(!d.on){const i=S.team.findIndex(m=>m.id===d.id);if(i>=0){openFiche(i);render()}return}
   if(d.ghost)d.ghost.remove();if(d.el)d.el.classList.remove("lifted");document.querySelectorAll(".over").forEach(o=>o.classList.remove("over"));
   const u=document.elementFromPoint(e.clientX,e.clientY),cell=u&&u.closest("[data-c]"),bench=u&&u.closest("[data-bench]"),m=byId(d.id);
+  if(m&&cell&&m.inj){toast(`${fn(m)} est blessé (${m.inj} match${m.inj>1?"s":""}) : il ne peut pas jouer. Soigne-le au Club.`);render();return}
   if(m&&cell){const k=cell.dataset.c,occ=S.team.find(x=>x.slot===k);
     if(occ!==m){if(occ)occ.slot=m.slot;else if(!m.slot&&fighters(S.team).length>=5){toast("5 combattants maximum sur le terrain");render();return}m.slot=k;toast(`${fn(m)} : ${slotL(m)}`)}}
   else if(m&&bench&&m.slot){m.slot=null;toast(`${fn(m)} va sur le banc`)}
