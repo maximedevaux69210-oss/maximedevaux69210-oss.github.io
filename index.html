@@ -3705,10 +3705,10 @@ let oddsJob=null;const ODDS={};
 function oddsKey(){const o=curOpp();return JSON.stringify([S.day,S.season,S.terrain,S.arena,S.captain,fighters(S.team).map(m=>[m.id,m.slot,m.lvl,m.rar,m.rules,m.gear&&gearKey(m),m.skills&&m.skills.eq]),o&&o.name])}
 function startOdds(){const el=$("odds");if(!el||S.day>=NDAYS)return;const key=oddsKey();if(ODDS[key]!=null){showOdds(ODDS[key]);return}
   if(oddsJob)clearTimeout(oddsJob.t);const cp=x=>x?JSON.parse(JSON.stringify(x)):null,o=curOpp();
-  const job={key,n:0,w:0,N:10};oddsJob=job;el.innerHTML=`<span class="muted">Estimation de tes chances…</span>`;
+  const job={key,n:0,w:0,N:6};oddsJob=job;el.innerHTML=`<span class="muted">Estimation de tes chances…</span>`;
   const step=()=>{if(oddsJob!==job)return;const A=cp(fighters(S.team)),B=cp(fighters(o.team));
     const r=simulate(A,B,S.arena,null,{subA:cp(benchOf(S.team)[0]),subB:cp(benchOf(o.team)[0]),capA:S.captain,capB:o.captain,terrain:S.terrain});job.n++;if(r.win)job.w++;
-    if(job.n<job.N){job.t=setTimeout(step,15)}else{ODDS[key]=job.w/job.N;oddsJob=null;showOdds(ODDS[key])}};job.t=setTimeout(step,60)}
+    if(job.n<job.N){job.t=setTimeout(step,45)}else{ODDS[key]=job.w/job.N;oddsJob=null;showOdds(ODDS[key])}};job.t=setTimeout(step,60)}
 function showOdds(p){const el=$("odds");if(!el)return;const pc=Math.round(p*100),c=pc>=65?"var(--heal)":pc>=40?"var(--gild-hi)":"var(--blood)";
   el.innerHTML=`<span>Tes chances estimées</span><i><b style="width:${pc}%;background:${c}"></b></i><em style="color:${c}">${pc} %</em>`}
 /* Équipe conseillée */
@@ -4183,14 +4183,14 @@ function maxTeam(){return MAX_TEAM0+bl("siege")}
 function bldCost(k){const l=bl(k);return Math.round(BLD[k].c[l]*(hasStaff("intendant")?.9:1))}
 function xpMul(){return 1+((S.relics||[]).includes("sablier")?.08:0)+.05*bl("academie")+(hasStaff("entraineur")?.1:0)+((SRULES[S.rule]||{}).x||0)}
 function goldMul(){return 1+((S.relics||[]).includes("bourse")?.08:0)+(S.diff==="difficile"?-.15:S.diff==="facile"?.25:0)+.08*bl("tresor")+(hasStaff("intendant")?.05:0)+((SRULES[S.rule]||{}).g||0)}
-function injBase(l){return .15-.04*l}
+function injBase(l){return [.04,.03,.02,.01][Math.min(3,l)]}
 function injChance(){return injBase(bl("infirm"))*(hasStaff("medecin")?.5:1)}
 function healCostL(l){return 40-10*l}
 function benchXp(rw){const sh=.25+.2*bl("caserne");if(!sh||!rw.xp.length)return;const avg=rw.xp.reduce((a,r)=>a+r.gain,0)/rw.xp.length,ids=new Set(rw.xp.map(r=>r.mid));
   S.team.forEach(m=>{if(ids.has(m.id))return;let x=(m.xp||0)+Math.round(avg*sh);const l0=m.lvl;while(x>=xpNeed(m)){x-=xpNeed(m);m.lvl++}m.xp=x;if(m.lvl>l0)m.skp=(m.skp||0)+(m.lvl-l0)})}
 function subFor(m){if(!m.slot)return;const s=m.slot;m.slot=null;const b=benchOf(S.team).filter(x=>!x.inj&&x!==m).sort((a,b)=>pwr(b)-pwr(a))[0];if(b)b.slot=s;return b}
 function injTick(rw){S.team.forEach(m=>{if(m.inj){m.inj--;if(!m.inj)delete m.inj}});
-  const ch=injChance(),L=[];rw.xp.forEach(r=>{if(!r.dead)return;const m=S.team.find(t=>t.id===r.mid);if(!m||Math.random()>=ch)return;if(m.slot&&!benchOf(S.team).some(x=>!x.inj&&x!==m))return;m.inj=Math.random()<.25&&!hasStaff("medecin")?2:1;const b=subFor(m);L.push(fn(m)+(b?` (remplacé par ${fn(b)})`:""))});
+  const ch=injChance(),L=[];const isM=typeof lastFight!=="undefined"&&lastFight&&(lastFight.mode||lastFight.practice);rw.xp.forEach(r=>{if(isM||L.length>=1||!r.dead)return;const m=S.team.find(t=>t.id===r.mid);if(!m||Math.random()>=ch)return;if(m.slot&&!benchOf(S.team).some(x=>!x.inj&&x!==m))return;m.inj=Math.random()<.15&&!hasStaff("medecin")?2:1;const b=subFor(m);L.push(fn(m)+(b?` (remplacé par ${fn(b)})`:""))});
   if(L.length)setTimeout(()=>toast(`Blessure : ${L.join(", ")}`),4400)}
 function consTick(){if(!S.cons)return;S.cons.left--;if(S.cons.left>0)return;const k=S.cons.k;S.bld=S.bld||{};S.bld[k]=(S.bld[k]||0)+1;S.cons=null;
   if(k==="maison"||k==="siege"){}setTimeout(()=>toast(`${BLD[k].l} niveau ${bl(k)} terminé !`),3000)}
@@ -4540,7 +4540,7 @@ function render(){
   {const vv=$("view");if(render._t!==tab){vv.classList.remove("vin");void vv.offsetWidth;vv.classList.add("vin");render._t=tab}}
   header();{const ck=JSON.stringify(S.club)+JSON.stringify(crestOrn());if($("crest").dataset.k!==ck){$("crest").dataset.k=ck;$("crest").innerHTML=clubCrest();$("brand").textContent=CLUB}}if(!$("coinic").innerHTML){$("coinic").innerHTML=COIN;document.querySelectorAll("svg.nvi").forEach(s=>s.innerHTML=NAVIC[s.dataset.ic])}
   document.querySelectorAll("nav button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===tab));
-  {const F=fighters(S.team);const d=$("dot-team");if(d)d.hidden=!(F.length<Math.min(5,S.team.length)||(S.items||[]).length)}
+  {const F=fighters(S.team);if(tab==="team"){S.itSeen=(S.items||[]).map(x=>x.id)}const nw=(S.items||[]).some(x=>!(S.itSeen||[]).includes(x.id));const d=$("dot-team");if(d)d.hidden=!(F.length<Math.min(5,S.team.filter(m=>!m.inj).length)||nw)}
   const v=$("view");
   if(tab==="team"){
     if(effView==="form"){    const F=fighters(S.team),B=benchOf(S.team),syn=synergies(S.team),synIds=new Set(syn.flatMap(s=>s.ids));
@@ -4807,15 +4807,17 @@ function codexHtml(o){
 let toastT;
 function toast(t){const el=$("toast");el.textContent=t;el.hidden=false;clearTimeout(toastT);toastT=setTimeout(()=>el.hidden=true,1800)}
 let drag=null;
-const moveGhost=(x,y)=>{const g=drag.ghost;g.style.left=(x-g.offsetWidth/2)+"px";g.style.top=(y-g.offsetHeight/2)+"px";
+let dragRaf=0;const moveGhost=(x,y)=>{if(!drag||!drag.ghost)return;const g=drag.ghost;g.style.left=(x-g.offsetWidth/2)+"px";g.style.top=(y-g.offsetHeight/2)+"px";
   const u=document.elementFromPoint(x,y),t=u&&(u.closest("[data-c]")||u.closest("[data-bench]"));document.querySelectorAll(".over").forEach(o=>{if(o!==t)o.classList.remove("over")});if(t)t.classList.add("over")};
 const startDrag=(x,y)=>{drag.on=true;const g=drag.el.cloneNode(true);g.classList.add("ghost");g.style.width=drag.el.offsetWidth+"px";document.body.appendChild(g);drag.ghost=g;drag.el.classList.add("lifted");try{navigator.vibrate&&navigator.vibrate(15)}catch(e){}moveGhost(x,y)};
-document.addEventListener("pointerdown",e=>{const el=e.target.closest("[data-dr]");if(!el||e.button>0)return;e.preventDefault();
+document.addEventListener("pointerdown",e=>{const el=e.target.closest("[data-dr]");if(!el||e.button>0)return;e.preventDefault();if(drag)dragAbort();document.querySelectorAll(".ghost").forEach(g=>g.remove());
   drag={id:+el.dataset.dr,el,x0:e.clientX,y0:e.clientY,on:false,ghost:null};const x=e.clientX,y=e.clientY;drag.timer=setTimeout(()=>{if(drag&&!drag.on)startDrag(x,y)},280)});
-document.addEventListener("pointermove",e=>{if(!drag)return;if(!drag.on&&Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0)>8)startDrag(e.clientX,e.clientY);if(drag.on){e.preventDefault();moveGhost(e.clientX,e.clientY)}});
+document.addEventListener("pointermove",e=>{if(!drag)return;if(!drag.on&&Math.hypot(e.clientX-drag.x0,e.clientY-drag.y0)>8)startDrag(e.clientX,e.clientY);if(drag.on){e.preventDefault();drag.mx=e.clientX;drag.my=e.clientY;if(!dragRaf)dragRaf=requestAnimationFrame(()=>{dragRaf=0;if(drag)moveGhost(drag.mx,drag.my)})}},{passive:false});
+const dragAbort=()=>{if(!drag)return;clearTimeout(drag.timer);if(drag.ghost)drag.ghost.remove();if(drag.el)drag.el.classList.remove("lifted");document.querySelectorAll(".over").forEach(o=>o.classList.remove("over"));drag=null};
+document.addEventListener("pointercancel",dragAbort);window.addEventListener("blur",dragAbort);document.addEventListener("visibilitychange",()=>{if(document.hidden)dragAbort()});
 document.addEventListener("pointerup",e=>{if(!drag)return;clearTimeout(drag.timer);const d=drag;drag=null;
   if(!d.on){const i=S.team.findIndex(m=>m.id===d.id);if(i>=0){openFiche(i);render()}return}
-  d.ghost.remove();document.querySelectorAll(".over").forEach(o=>o.classList.remove("over"));
+  if(d.ghost)d.ghost.remove();if(d.el)d.el.classList.remove("lifted");document.querySelectorAll(".over").forEach(o=>o.classList.remove("over"));
   const u=document.elementFromPoint(e.clientX,e.clientY),cell=u&&u.closest("[data-c]"),bench=u&&u.closest("[data-bench]"),m=byId(d.id);
   if(m&&cell){const k=cell.dataset.c,occ=S.team.find(x=>x.slot===k);
     if(occ!==m){if(occ)occ.slot=m.slot;else if(!m.slot&&fighters(S.team).length>=5){toast("5 combattants maximum sur le terrain");render();return}m.slot=k;toast(`${fn(m)} : ${slotL(m)}`)}}
@@ -5105,7 +5107,7 @@ function play(F,isReplay,opts){
   const stage=$("stage"),cv=$("cv"),ctx=cv.getContext("2d",{alpha:false});
   const WX=AW+5,WY=AH+4.6,BGS=32;
   let cw=0,ch=0,dpr=1,fitS=1,bg=null;const cam={x:0,y:.2,z:1};
-  const resize=()=>{dpr=Math.min(2,window.devicePixelRatio||1);cw=stage.clientWidth;ch=stage.clientHeight;cv.width=cw*dpr;cv.height=ch*dpr;fitS=Math.min(cw/(2*(AW+1.6)),ch/(2*(AH+1.9)))};
+  const resize=()=>{dpr=Math.min(innerWidth<700?1.5:2,window.devicePixelRatio||1);cw=stage.clientWidth;ch=stage.clientHeight;cv.width=cw*dpr;cv.height=ch*dpr;fitS=Math.min(cw/(2*(AW+1.6)),ch/(2*(AH+1.9)))};
   const TH={
     sable:{out:"#2a1f16",s1:"#7a6448",s2:"#6a5640",lip:"#4a3a2a",wall:"#5e4a36",floor:["#e2bf80","#9a7442"],dark:0,glow:.14},
     glace:{out:"#1c2430",s1:"#8a9aaa",s2:"#7a8a9a",lip:"#4a5868",wall:"#6a7a8c",floor:["#e4f2fa","#7aa2bc"],dark:.08,glow:.16},
