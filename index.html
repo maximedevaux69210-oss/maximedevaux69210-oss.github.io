@@ -985,6 +985,11 @@ body.lowfx [data-rr]{animation:none!important}body.lowfx [data-rr]::after{displa
 .obadge{font-size:10px;font-weight:900;letter-spacing:.08em;padding:1px 7px;border-radius:999px;margin-bottom:2px}.obadge.boss{background:#e0452f;color:#fff}.obadge.riv{background:#b07ae8;color:#fff}
 .evb{margin:8px 0 0;font-size:12.5px;padding:7px 10px;border-radius:10px;background:rgba(0,0,0,.25);border-left:3px solid var(--ec,#e8be5a)}.evb.boss{--ec:#e0452f}.evb.riv{--ec:#b07ae8}
 .admin-in{width:100%;box-sizing:border-box;background:#1a1410;color:var(--fg);border:1px solid var(--hair);border-radius:10px;padding:12px;font:inherit;font-size:16px}
+/* V60 : anti-clignotement Android pendant les combats (fond fixe + flou + calques sous le canvas) */
+body:has(#arena:not([hidden])){background:#17130f!important}
+body:has(#arena:not([hidden])) .app,body:has(#arena:not([hidden])) .fab,body:has(#arena:not([hidden])) #fab{visibility:hidden!important}
+.arena{background:#17130f;isolation:isolate;transform:translateZ(0)}
+.stage canvas#cv{display:block;width:100%;height:100%;transform:translateZ(0)}
 </style>
 
 </head><body>
@@ -4925,7 +4930,7 @@ function play(F,isReplay,opts){
     <div class="minis" id="minis"></div>
     <div class="ctrl"><button class="btn" id="pause">Pause</button><button class="btn" id="spd">×${String(speed).replace(".",",")}</button><button class="btn" id="lines" aria-pressed="${showLines}">Cibles</button><button class="btn" id="snd" aria-pressed="${SND.on}">Son</button><button class="btn" id="shout" title="Une fois par match : attaque +20 % et vitesse +12 % pendant 6 s">Cri !</button><button class="btn main" id="skip">Passer</button></div>`;
   ar.hidden=false;
-  const stage=$("stage"),cv=$("cv"),ctx=cv.getContext("2d");
+  const stage=$("stage"),cv=$("cv"),ctx=cv.getContext("2d",{alpha:false});
   const WX=AW+5,WY=AH+4.6,BGS=32;
   let cw=0,ch=0,dpr=1,fitS=1,bg=null;const cam={x:0,y:.2,z:1};
   const resize=()=>{dpr=Math.min(2,window.devicePixelRatio||1);cw=stage.clientWidth;ch=stage.clientHeight;cv.width=cw*dpr;cv.height=ch*dpr;fitS=Math.min(cw/(2*(AW+1.6)),ch/(2*(AH+1.9)))};
