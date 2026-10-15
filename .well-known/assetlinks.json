@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "io.github.maximedevaux69210_oss.twa",
+        "sha256_cert_fingerprints": ["A6:F2:B6:70:9F:E4:74:01:F7:F2:65:77:81:08:A5:8B:16:29:32:AE:7D:7D:60:EF:A2:06:DB:0D:72:18:06:60"]
+      }
+    }]
